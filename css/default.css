@@ -1,0 +1,62 @@
+/* Styles that are universal to all pages */
+
+@font-face {
+    font-family: Jersey;
+    src: url(../fonts/Jersey.ttf);
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: Jersey, Arial, sans-serif;
+}
+
+html, body {
+    height: 100%;
+    width: 100%;
+    position: relative;
+    background-color: #000000;
+    padding: 1rem;
+    font-size: 16px;
+}
+
+#mainContent {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+}
+
+#footer {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+
+#navList {
+    list-style-type: none;
+    margin-bottom: 0.75rem;
+}
+
+.navListItem {
+    display: inline;
+    margin: 0 0.75rem;
+}
+
+.navListItem > a {
+    text-decoration: none;
+    color: #ffffff;
+    font-size: 1.25rem;
+}
+
+.navListItem>a:hover {
+    text-decoration: underline;
+}
+
+#footerText {
+    color: #9a9a9a;
+    text-align: center;
+}
