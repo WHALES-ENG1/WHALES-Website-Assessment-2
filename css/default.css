@@ -10,6 +10,7 @@
     padding: 0;
     box-sizing: border-box;
     font-family: Jersey, Arial, sans-serif;
+    color: white;
 }
 
 html, body {
@@ -48,7 +49,6 @@ html, body {
 
 .navListItem > a {
     text-decoration: none;
-    color: #ffffff;
     font-size: 1.25rem;
 }
 

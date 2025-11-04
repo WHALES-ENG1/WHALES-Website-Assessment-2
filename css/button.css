@@ -1,0 +1,46 @@
+button {
+    margin: auto 0;
+    padding: 10px 20px;
+    border: #ffffff solid 2px;
+    border-radius: 50px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-direction: row;
+    cursor: pointer;
+    background-color: #000000;
+    transition: translate 0.1s;
+}
+
+button.github {
+    padding: 10px 15px !important;
+}
+
+button:hover {
+    box-shadow: 3px 3px #ffffff;
+}
+
+button:hover>#buttonTextContainer>#buttonText {
+    text-decoration: underline;
+}
+
+button:active {
+    translate: 3px 3px;
+    border-style: dashed;
+    box-shadow: none;
+}
+
+#buttonText {
+    font-size: 1.5rem;
+}
+
+#buttonSubtext {
+    font-size: 1.15rem;
+    color: #9a9a9a;
+    text-align: left;
+}
+
+#downloadLogo {
+    width: 1.75rem;
+    height: 1.75rem;
+}
