@@ -32,6 +32,7 @@ button:active {
 
 #buttonText {
     font-size: 1.5rem;
+    text-align: left;
 }
 
 #buttonSubtext {
