@@ -63,6 +63,14 @@ html, body {
     padding-bottom: 2rem;
 }
 
+video {
+    max-width: 90%;
+    height: auto;
+    border: 5px solid #333;
+    border-radius: 10px;
+    margin: auto 0;
+}
+
 /* Optimize navbar for mobile */
 @media (max-width: 700px) {
     .navListItem {
