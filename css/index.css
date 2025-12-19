@@ -1,5 +1,15 @@
-#logo {
-    max-height: 50%;
+#logos {
+    display: flex;
+    gap: 50px;
+    align-items: center;
+    margin: 20px 20px 50px;
+}
+
+.logo {
+    max-width: 250px;
     width: auto;
-    margin-top: auto;
+}
+
+h1 {
+    font-size: 3rem;
 }
