@@ -21,6 +21,10 @@ html, body {
     font-size: 16px;
 }
 
+ol {
+    margin-left: 4ch;
+}
+
 #mainContent {
     display: flex;
     flex-direction: column;

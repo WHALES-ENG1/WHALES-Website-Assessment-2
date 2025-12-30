@@ -1,0 +1,398 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Testing - All Nighter</title>
+    <link rel="shortcut icon" type="image/x-icon" href="favicon.ico">
+    <link rel="stylesheet" href="css/default.css">
+    <link rel="stylesheet" href="css/team.css">
+    <link rel="stylesheet" href="css/testing.css">
+</head>
+
+<body>
+<div id="mainContent">
+    <h1>Manual Tests</h1>
+    Each of the following tables represents one of the manual test protocols for our project.
+
+    <table class="manual-test-table">
+        <thead>
+        <tr>
+            <th style="text-align:left" class="test-id-header">ID</th>
+            <td style="text-align:left" class="test-id-value">MT_SCREEN_SCALING</td>
+            <th style="text-align:left" class="test-requirements-header">Related Requirements/Components</th>
+            <td style="text-align:left" class="test-requirements-value">
+                UR_SCREEN_SCALABILITY<br>
+                NFR_SCREEN_SCALABILITY
+            </td>
+        </tr>
+        </thead>
+        <tbody>
+        <tr>
+            <th colspan="4"></th>
+        </tr>
+        <tr>
+            <th style="text-align:left" class="test-description-header">Description</th>
+            <td style="text-align:left" colspan="3" class="test-description-value">
+                Does resizing the game window behave as expected? We should have no overlap of GUI elements and
+                rendering should function normally on a variety of different window sizes.
+            </td>
+        </tr>
+        <tr>
+            <th style="text-align:left" class="test-steps-header">Steps</th>
+            <td style="text-align:left" colspan="3" class="test-steps-value">
+                <ol>
+                    <li> Run the game executable.</li>
+                    <li> Resize the game window in each of the following ways:
+                        <ol type="a">
+                            <li>Default windowed size (no resize from load)</li>
+                            <li>As small horizontally and large vertically as possible</li>
+                            <li>As large horizontally and small vertically as possible</li>
+                            <li>As small as possible on both axis</li>
+                            <li>Game window maximised</li>
+                        </ol>
+                    </li>
+                    <li>Navigate through the menus to start the game, then repeat step 2.</li>
+                    <li>Repeat step 2, but with the game paused.</li>
+                </ol>
+            </td>
+        </tr>
+        <tr>
+            <th style="text-align:left" class="test-outcome-header">Expected Outcome</th>
+            <td style="text-align:left" colspan="3" class="test-outcome-value">
+                All game elements continue to render. No noticeable size disparity between sprites. UI elements do not
+                overlap.
+            </td>
+        </tr>
+        <tr>
+            <th style="text-align:left" class="test-responsibility-header">Person Responsible</th>
+            <td style="text-align:left" colspan="3" class="test-responsibility-value">Samuel Knight</td>
+        </tr>
+        </tbody>
+    </table>
+
+    <table class="manual-test-table">
+        <thead>
+        <tr>
+            <th style="text-align:left" class="test-id-header">ID</th>
+            <td style="text-align:left" class="test-id-value">MT_UE_FAMILY_FRIENDLY</td>
+            <th style="text-align:left" class="test-requirements-header">Related Requirements/Components</th>
+            <td style="text-align:left" class="test-requirements-value">UR_FAMILY_FRIENDLY</td>
+        </tr>
+        </thead>
+        <tbody>
+        <tr>
+            <th colspan="4"></th>
+        </tr>
+        <tr>
+            <th style="text-align:left" class="test-description-header">Description</th>
+            <td style="text-align:left" colspan="3" class="test-description-value">
+                Testing whether the game is considered to be appropriate for young audiences, based on public opinion.
+            </td>
+        </tr>
+        <tr>
+            <th style="text-align:left" class="test-steps-header">Steps</th>
+            <td style="text-align:left" colspan="3" class="test-steps-value">
+                Test to be completed using the User Evaluation form. Evaluators will be asked to evaluate whether they
+                believe the game is appropriate for young audiences.
+            </td>
+        </tr>
+        <tr>
+            <th style="text-align:left" class="test-outcome-header">Expected Outcome</th>
+            <td style="text-align:left" colspan="3" class="test-outcome-value">
+                >90% of evaluators answer positively when asked if they think the game is appropriate for young
+                audiences.
+            </td>
+        </tr>
+        <tr>
+            <th style="text-align:left" class="test-responsibility-header">Person Responsible</th>
+            <td style="text-align:left" colspan="3" class="test-responsibility-value">Leo Durnion</td>
+        </tr>
+        </tbody>
+    </table>
+
+    <table class="manual-test-table">
+        <thead>
+        <tr>
+            <th style="text-align:left" class="test-id-header">ID</th>
+            <td style="text-align:left" class="test-id-value">MT_BBFC_FAMILY_FRIENDLY</td>
+            <th style="text-align:left" class="test-requirements-header">Related Requirements/Components</th>
+            <td style="text-align:left" class="test-requirements-value">
+                UR_FAMILY_FRIENDLY<br>
+                NFR_NO_GRAPHIC_CONTENT
+            </td>
+        </tr>
+        </thead>
+        <tbody>
+        <tr>
+            <th colspan="4"></th>
+        </tr>
+        <tr>
+            <th style="text-align:left" class="test-description-header">Description</th>
+            <td style="text-align:left" colspan="3" class="test-description-value">
+                More objective testing of how family friendly the game is based on the BBFC PG rating guidelines.
+            </td>
+        </tr>
+        <tr>
+            <th style="text-align:left" class="test-steps-header">Steps</th>
+            <td style="text-align:left" colspan="3" class="test-steps-value">
+                Analyse the content of the game looking for the following content:
+                <ol type="a">
+                    <li>
+                        Look for any instances of violence or dangerous behaviour and ensure that it isn’t “presented as
+                        safe or fun”
+                    </li>
+                    <li>
+                        Any uses of discriminatory language should be clearly disapproved of.
+                    </li>
+                    <li>
+                        References to illegal drugs or drug misuse should be brief and carry a suitable cautionary
+                        message.
+                    </li>
+                    <li>
+                        There may be mild bad language only.
+                    </li>
+                    <li>
+                        There may be nudity with no sexual context.
+                    </li>
+                    <li>
+                        Sexual activity may be implied, but should be discreet and infrequent. There may be mild sex
+                        references and innuendo only.
+                    </li>
+                    <li>
+                        Threat and scary scenes should not be prolonged or intense.
+                    </li>
+                    <li>
+                        Violence will be mild, with more impactful moments permitted if justified by context. Injury
+                        detail, including sight of blood, should be brief.
+                    </li>
+                </ol>
+                All parts of the game should be suitably evaluated for these criteria
+            </td>
+        </tr>
+        <tr>
+            <th style="text-align:left" class="test-outcome-header">Expected Outcome</th>
+            <td style="text-align:left" colspan="3" class="test-outcome-value">>90% of evaluators answer positively when
+                asked if they think the game is appropriate for young audiences.
+            </td>
+        </tr>
+        <tr>
+            <th style="text-align:left" class="test-responsibility-header">Person Responsible</th>
+            <td style="text-align:left" colspan="3" class="test-responsibility-value">Anexa Bijoy</td>
+        </tr>
+        </tbody>
+    </table>
+
+    <table class="manual-test-table">
+        <thead>
+        <tr>
+            <th style="text-align:left" class="test-id-header">ID</th>
+            <td style="text-align:left" class="test-id-value">MT_UE_MAP_ACCURACY</td>
+            <th style="text-align:left" class="test-requirements-header">Related Requirements/Components</th>
+            <td style="text-align:left" class="test-requirements-value">
+                UR_UNIVERSITY_ACCURATE<br>
+                NFR_UNIVERSITY_STUDENT_RELATABLE
+            </td>
+        </tr>
+        </thead>
+        <tbody>
+        <tr>
+            <th colspan="4"></th>
+        </tr>
+        <tr>
+            <th style="text-align:left" class="test-description-header">Description</th>
+            <td style="text-align:left" colspan="3" class="test-description-value">
+                Is the map accurate to some part of the university? It must recognisably match some area of the
+                university, with some liberties allowed.
+            </td>
+        </tr>
+        <tr>
+            <th style="text-align:left" class="test-steps-header">Steps</th>
+            <td style="text-align:left" colspan="3" class="test-steps-value">
+                Test to be completed using the User Evaluation form. Evaluators will be asked to evaluate whether they
+                think the map resembles any part of the university.
+            </td>
+        </tr>
+        <tr>
+            <th style="text-align:left" class="test-outcome-header">Expected Outcome</th>
+            <td style="text-align:left" colspan="3" class="test-outcome-value">
+                >50% of evaluators answer positively when asked if they think the game resembles any part of the
+                university. This is a lower percentage than MT_UE_FAMILY_FRIENDLY since there is some leeway in how
+                closely the map matches according to UR_UNIVERSITY_ACCURATE.
+            </td>
+        </tr>
+        <tr>
+            <th style="text-align:left" class="test-responsibility-header">Person Responsible</th>
+            <td style="text-align:left" colspan="3" class="test-responsibility-value">Leo Durnion</td>
+        </tr>
+        </tbody>
+    </table>
+
+    <table class="manual-test-table">
+        <thead>
+        <tr>
+            <th style="text-align:left" class="test-id-header">ID</th>
+            <td style="text-align:left" class="test-id-value">MT_SPRITE_DISTINGUISHABILITY</td>
+            <th style="text-align:left" class="test-requirements-header">Related Requirements/Components</th>
+            <td style="text-align:left" class="test-requirements-value">
+                UR_COLOURBLIND_FRIENDLY<br>
+                NFR_COLOURBLIND_FRIENDLY
+            </td>
+        </tr>
+        </thead>
+        <tbody>
+        <tr>
+            <th colspan="4"></th>
+        </tr>
+        <tr>
+            <th style="text-align:left" class="test-description-header">Description</th>
+            <td style="text-align:left" colspan="3" class="test-description-value">
+                Ensuring the game's assets are easily distinguishable from each other under a variety of colour blind
+                filters in order to make sure the game is playable by people with various types of colourblindness.
+            </td>
+        </tr>
+        <tr>
+            <th style="text-align:left" class="test-steps-header">Steps</th>
+            <td style="text-align:left" colspan="3" class="test-steps-value">
+                <ol>
+                    <li>
+                        Run the game executable
+                    </li>
+                    <li>
+                        Play through a run of the game as normal, record any places where sprites are hard to
+                        distinguish from each other when they shouldn’t be.
+                    </li>
+                    <li>
+                        Launch Color Oracle and apply each of the following filters on every screen encountered,
+                        repeating steps 1 and 2 for each filter.
+                        <ol type="a">
+                            <li>Deuteranopia</li>
+                            <li>Protanopia</li>
+                            <li>Tritanopia</li>
+                            <li>Greyscale</li>
+                        </ol>
+                    </li>
+                </ol>
+                (Note: Color Oracle will only show you a snapshot of your screen with the given filter, you’ll need to
+                apply the filter for each screen individually. When you launch Color Oracle, it doesn’t have a window,
+                and instead loads to your system tray)
+            </td>
+        </tr>
+        <tr>
+            <th style="text-align:left" class="test-outcome-header">Expected Outcome</th>
+            <td style="text-align:left" colspan="3" class="test-outcome-value">
+                No instances of indistinguishable sprites under any filter.
+            </td>
+        </tr>
+        <tr>
+            <th style="text-align:left" class="test-responsibility-header">Person Responsible</th>
+            <td style="text-align:left" colspan="3" class="test-responsibility-value">Samuel Knight</td>
+        </tr>
+        </tbody>
+    </table>
+
+    <table class="manual-test-table">
+        <thead>
+        <tr>
+            <th style="text-align:left" class="test-id-header">ID</th>
+            <td style="text-align:left" class="test-id-value">MT_UE_DIFFICULTY</td>
+            <th style="text-align:left" class="test-requirements-header">Related Requirements/Components</th>
+            <td style="text-align:left" class="test-requirements-value">
+                UR_BEGINNER_DIFFICULTY<br>
+                NFR_BEGINNER_DIFFICULTY
+            </td>
+        </tr>
+        </thead>
+        <tbody>
+        <tr>
+            <th colspan="4"></th>
+        </tr>
+        <tr>
+            <th style="text-align:left" class="test-description-header">Description</th>
+            <td style="text-align:left" colspan="3" class="test-description-value">
+                Checks that the game isn’t too difficult for players ensuring it is beginner-friendly.
+            </td>
+        </tr>
+        <tr>
+            <th style="text-align:left" class="test-steps-header">Steps</th>
+            <td style="text-align:left" colspan="3" class="test-steps-value">
+                Test to be completed using the User Evaluation form. Evaluators will be asked to rate the difficulty of
+                the game from 1 to 5, with 5 being the most difficult and 1 being the easiest
+            </td>
+        </tr>
+        <tr>
+            <th style="text-align:left" class="test-outcome-header">Expected Outcome</th>
+            <td style="text-align:left" colspan="3" class="test-outcome-value">
+                Mean difficulty rating less than or equal to 3.
+            </td>
+        </tr>
+        <tr>
+            <th style="text-align:left" class="test-responsibility-header">Person Responsible</th>
+            <td style="text-align:left" colspan="3" class="test-responsibility-value">Leo Durnion</td>
+        </tr>
+        </tbody>
+    </table>
+
+    <table class="manual-test-table">
+        <thead>
+        <tr>
+            <th style="text-align:left" class="test-id-header">ID</th>
+            <td style="text-align:left" class="test-id-value">MT_UE_LEGIBILITY</td>
+            <th style="text-align:left" class="test-requirements-header">Related Requirements/Components</th>
+            <td style="text-align:left" class="test-requirements-value">
+                UR_LEGIBLE_TEXT<br>
+                NFR_LEGIBLE_TEXT
+            </td>
+        </tr>
+        </thead>
+        <tbody>
+        <tr>
+            <th colspan="4"></th>
+        </tr>
+        <tr>
+            <th style="text-align:left" class="test-description-header">Description</th>
+            <td style="text-align:left" colspan="3" class="test-description-value">
+                Is the text rendered on the screen readable to all users, and does it adjust the resolution to fit
+                different sized devices?
+            </td>
+        </tr>
+        <tr>
+            <th style="text-align:left" class="test-steps-header">Steps</th>
+            <td style="text-align:left" colspan="3" class="test-steps-value">
+                Test to be completed using the User Evaluation form. Evaluators will be asked to evaluate whether
+                the text shown to them on the screen was legible. They will be asked: "Was the text easy to read?",
+                "Did you have any difficulty distinguishing between words or characters?".
+            </td>
+        </tr>
+        <tr>
+            <th style="text-align:left" class="test-outcome-header">Expected Outcome</th>
+            <td style="text-align:left" colspan="3" class="test-outcome-value">
+                >90% of evaluators must answer positively when asked if text on the screen was legible.
+            </td>
+        </tr>
+        <tr>
+            <th style="text-align:left" class="test-responsibility-header">Person Responsible</th>
+            <td style="text-align:left" colspan="3" class="test-responsibility-value">Anexa Bijoy</td>
+        </tr>
+        </tbody>
+    </table>
+
+    <div id="footer">
+        <ul id="navList">
+            <li class="navListItem"><a href="index.html">Home</a></li>
+            <li class="navListItem"><a href="downloads.html"> More Downloads</a></li>
+            <li class="navListItem"><a href="team.html">The Team</a></li>
+            <li class="navListItem"><a href="log.html">Devlog</a></li>
+            <li class="navListItem"><a href="testing.html">> Testing</a></li>
+        </ul>
+        <p id="footerText">
+            2025 © Mathochist Studios & WHALES
+            <br>
+            All Rights Reserved
+        </p>
+    </div>
+</div>
+</body>
+
+</html>
