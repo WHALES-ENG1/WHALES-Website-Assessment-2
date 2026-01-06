@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>KeyBinds.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">headless</a> &gt; <a href="index.source.html" class="el_package">com.mathochist.mazegame.keymovement</a> &gt; <span class="el_source">KeyBinds.java</span></div><h1>KeyBinds.java</h1><pre class="source lang-java linenums">package com.mathochist.mazegame.keymovement;
+
+import com.badlogic.gdx.Input;
+
+/**
+ * Class containing key bindings for player movement and interaction. &lt;br&gt;
+ * &lt;br&gt;
+ * To add new key binds, add a new static integer variable, add the relevant enum to KeyAction, and
+ * update the setKeyBind method accordingly. You will be able to check for the key press using
+ * KeyBuffer.isKeyPressed(KeyBinds.YOUR_NEW_KEY_BIND_VARIABLE). &lt;br&gt;
+ * &lt;br&gt;
+ * If you want to add more complex functionality (like toggling sprint), you will need to implement
+ * that in KeyBuffer.java.
+ */
+<span class="nc" id="L15">public class KeyBinds {</span>
+
+<span class="fc" id="L17">  public static int MOVE_UP = Input.Keys.UP; // W key</span>
+<span class="fc" id="L18">  public static int MOVE_DOWN = Input.Keys.DOWN; // S key</span>
+<span class="fc" id="L19">  public static int MOVE_LEFT = Input.Keys.LEFT; // A key</span>
+<span class="fc" id="L20">  public static int MOVE_RIGHT = Input.Keys.RIGHT; // D key</span>
+
+<span class="fc" id="L22">  public static int MOVE_UP_ALT = Input.Keys.W; // UP key</span>
+<span class="fc" id="L23">  public static int MOVE_DOWN_ALT = Input.Keys.S; // DOWN key</span>
+<span class="fc" id="L24">  public static int MOVE_LEFT_ALT = Input.Keys.A; // LEFT key</span>
+<span class="fc" id="L25">  public static int MOVE_RIGHT_ALT = Input.Keys.D; // RIGHT key</span>
+
+<span class="fc" id="L27">  public static int SPRINT = Input.Keys.SHIFT_LEFT; // Left Shift key</span>
+<span class="fc" id="L28">  public static int INTERACT = Input.Keys.E; // E key</span>
+
+<span class="fc" id="L30">  public static int ESCAPE_GAME = Input.Keys.ESCAPE; // ESC key</span>
+
+  /**
+   * Set Key code.
+   *
+   * @param action action
+   * @param keycode Keycode to set to action
+   */
+  public static void setKeyBind(KeyAction action, int keycode) {
+<span class="nc bnc" id="L39" title="All 8 branches missed.">    switch (action) {</span>
+      case MOVE_UP:
+<span class="nc" id="L41">        MOVE_UP = keycode;</span>
+<span class="nc" id="L42">        break;</span>
+      case MOVE_DOWN:
+<span class="nc" id="L44">        MOVE_DOWN = keycode;</span>
+<span class="nc" id="L45">        break;</span>
+      case MOVE_LEFT:
+<span class="nc" id="L47">        MOVE_LEFT = keycode;</span>
+<span class="nc" id="L48">        break;</span>
+      case MOVE_RIGHT:
+<span class="nc" id="L50">        MOVE_RIGHT = keycode;</span>
+<span class="nc" id="L51">        break;</span>
+      case SPRINT:
+<span class="nc" id="L53">        SPRINT = keycode;</span>
+<span class="nc" id="L54">        break;</span>
+      case INTERACT:
+<span class="nc" id="L56">        INTERACT = keycode;</span>
+<span class="nc" id="L57">        break;</span>
+      case ESCAPE_GAME:
+<span class="nc" id="L59">        ESCAPE_GAME = keycode;</span>
+<span class="nc" id="L60">        break;</span>
+      default:
+        break;
+    }
+<span class="nc" id="L64">  }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.13.202504020838</span></div></body></html>

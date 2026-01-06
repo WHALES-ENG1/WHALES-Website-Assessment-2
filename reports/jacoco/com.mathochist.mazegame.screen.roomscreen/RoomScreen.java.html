@@ -1,0 +1,406 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>RoomScreen.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">headless</a> &gt; <a href="index.source.html" class="el_package">com.mathochist.mazegame.screen.roomscreen</a> &gt; <span class="el_source">RoomScreen.java</span></div><h1>RoomScreen.java</h1><pre class="source lang-java linenums">package com.mathochist.mazegame.screen.roomscreen;
+
+import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.Input;
+import com.badlogic.gdx.audio.Music;
+import com.badlogic.gdx.audio.Sound;
+import com.badlogic.gdx.graphics.Cursor;
+import com.badlogic.gdx.graphics.GL20;
+import com.badlogic.gdx.graphics.OrthographicCamera;
+import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.utils.viewport.FitViewport;
+import com.mathochist.mazegame.Main;
+import com.mathochist.mazegame.entity.Player;
+import com.mathochist.mazegame.entity.playerinventory.InventoryObject;
+import com.mathochist.mazegame.render.RenderBuffer;
+import com.mathochist.mazegame.screen.AchievementScreen;
+import com.mathochist.mazegame.screen.DefaultScreen;
+import com.mathochist.mazegame.screen.EndScreen;
+import com.mathochist.mazegame.screen.UsernameScreen;
+import com.mathochist.mazegame.userinterface.Hud;
+import com.mathochist.mazegame.userinterface.speechtext.SpeechType;
+import com.mathochist.mazegame.worlds.GameWorld;
+
+/**
+ * Base class for all game screens, providing common functionality such as camera setup, viewport
+ * management, HUD integration, and player handling.
+ */
+public abstract class RoomScreen extends DefaultScreen {
+<span class="fc" id="L30">  public static boolean isFireAlarmActive = false;</span>
+<span class="fc" id="L31">  public static boolean powerOutage = false;</span>
+<span class="fc" id="L32">  public static boolean fireEventCheck = true;</span>
+<span class="fc" id="L33">  public static double fireAlarmLuck = Math.random();</span>
+  public final Music fireAlarmSound;
+  private final OrthographicCamera camera;
+  private final FitViewport viewport;
+  private final Hud gameHud;
+  private final SpriteBatch screenBatch;
+  private final GameWorld world;
+  private final RenderBuffer renderBuffer;
+  private final Texture vignetteLight;
+  private final Texture vignetteMedium;
+  private final Texture vignetteDark;
+  private final Texture vignetteFire;
+<span class="fc" id="L45">  private float outageTimer = 20f; // power goes out for 20 seconds</span>
+<span class="fc" id="L46">  private float fireAlarmTimer = 10f; // fire alarm time</span>
+  private Player player;
+<span class="fc" id="L48">  private VignetteLevel currentVignette = VignetteLevel.medium;</span>
+<span class="fc" id="L49">  private boolean isPaused = false;</span>
+<span class="fc" id="L50">  private boolean prepareTransition = false;</span>
+<span class="fc" id="L51">  private float inputDelay = 0.0f;</span>
+
+  /**
+   * Create Room Screen using the other Constructor.
+   *
+   * @param game current instance of game
+   * @param mapFileName Name of room
+   */
+  public RoomScreen(Main game, String mapFileName) {
+<span class="nc" id="L60">    this(game, null, null, mapFileName);</span>
+<span class="nc" id="L61">  }</span>
+
+  /**
+   * Create the Room Screen to display.
+   *
+   * @param game Current instance of game
+   * @param spawnX X coordinate to place the player at
+   * @param spawnY Y coordinate to place the player at
+   * @param mapFileName Name of room
+   */
+  public RoomScreen(Main game, Float spawnX, Float spawnY, String mapFileName) {
+<span class="fc" id="L72">    super(game);</span>
+    // GDX setup
+<span class="fc" id="L74">    Gdx.graphics.setSystemCursor(Cursor.SystemCursor.Arrow);</span>
+<span class="fc" id="L75">    Gdx.input.setInputProcessor(this);</span>
+
+    // Camera setup
+<span class="fc" id="L78">    camera = new OrthographicCamera();</span>
+<span class="fc" id="L79">    float gameWidth = 1280;</span>
+<span class="fc" id="L80">    float gameHeight = 720;</span>
+<span class="fc" id="L81">    viewport = new FitViewport(gameWidth, gameHeight, camera);</span>
+<span class="fc" id="L82">    camera.position.set(gameWidth / 2f, gameHeight / 2f, 0); // Center camera</span>
+<span class="fc" id="L83">    camera.update();</span>
+
+<span class="fc" id="L85">    gameHud = new Hud(game);</span>
+    // Batch setup
+<span class="fc" id="L87">    screenBatch = game.getSpriteBatch();</span>
+    // Render buffer setup
+<span class="fc" id="L89">    renderBuffer = new RenderBuffer();</span>
+
+    // CHANGE: vignette setup
+<span class="fc" id="L92">    vignetteLight = new Texture(Gdx.files.internal(&quot;vignette/light.png&quot;));</span>
+<span class="fc" id="L93">    vignetteMedium = new Texture(Gdx.files.internal(&quot;vignette/medium.png&quot;));</span>
+<span class="fc" id="L94">    vignetteDark = new Texture(Gdx.files.internal(&quot;vignette/dark.png&quot;));</span>
+<span class="fc" id="L95">    vignetteFire = new Texture(Gdx.files.internal(&quot;vignette/fire-alarm.png&quot;));</span>
+
+<span class="fc" id="L97">    vignetteLight.setFilter(Texture.TextureFilter.Linear, Texture.TextureFilter.Linear);</span>
+<span class="fc" id="L98">    vignetteMedium.setFilter(Texture.TextureFilter.Linear, Texture.TextureFilter.Linear);</span>
+<span class="fc" id="L99">    vignetteDark.setFilter(Texture.TextureFilter.Linear, Texture.TextureFilter.Linear);</span>
+<span class="fc" id="L100">    this.world = new GameWorld(game, this, Gdx.files.internal(mapFileName), screenBatch);</span>
+<span class="fc" id="L101">    String currentMap = mapFileName.replace(&quot;maps/&quot;, &quot;&quot;).replace(&quot;.json&quot;, &quot;&quot;).replace(&quot;_&quot;, &quot; &quot;);</span>
+<span class="fc" id="L102">    currentMap = currentMap.substring(0, 1).toUpperCase() + currentMap.substring(1);</span>
+
+<span class="fc" id="L104">    float[] spawnPixels = getSpawnPixels(spawnX, spawnY);</span>
+
+<span class="fc" id="L106">    camera.position.set(spawnPixels[0], spawnPixels[1], 0);</span>
+<span class="fc" id="L107">    camera.update();</span>
+
+<span class="fc" id="L109">    this.player = new Player(game, camera, screenBatch, world, spawnPixels[0], spawnPixels[1]);</span>
+
+<span class="fc bfc" id="L111" title="All 2 branches covered.">    if (game.getPlayerInventory().hasItem(InventoryObject.GLASSES)) {</span>
+<span class="fc" id="L112">      camera.zoom = 1.5f;</span>
+<span class="fc" id="L113">      camera.update();</span>
+    }
+
+<span class="fc" id="L116">    getGameHud().getSpeechBubbleManager().removeBubblesOfType(SpeechType.NPC_SPEECH);</span>
+<span class="fc" id="L117">    getGameHud()</span>
+<span class="fc" id="L118">        .getSpeechBubbleManager()</span>
+<span class="fc" id="L119">        .createSpeechBubble(SpeechType.NPC_SPEECH, currentMap, 1000);</span>
+
+    // Setup sounds
+<span class="fc" id="L122">    fireAlarmSound = Gdx.audio.newMusic(Gdx.files.internal(&quot;audio/fire_alarm.mp3&quot;));</span>
+<span class="fc" id="L123">  }</span>
+
+  /**
+   * Calculate the pixels to spawn the player at.
+   *
+   * @param spawnX Specified spawn X position or null if unspecified
+   * @param spawnY Specified spawn Y position or null if unspecified
+   * @return An array with 2 items, the X pixel pos and the Y pixel pos
+   */
+  private float[] getSpawnPixels(Float spawnX, Float spawnY) {
+    float[] spawnPixels;
+<span class="pc bpc" id="L134" title="1 of 4 branches missed.">    if (spawnX == null || spawnY == null) {</span>
+      // If null, grab from the world definition
+<span class="fc" id="L136">      int[] spawnPoint = world.getSpawnPointPixels();</span>
+<span class="fc" id="L137">      spawnPixels = new float[] {spawnPoint[0], spawnPoint[1]};</span>
+<span class="fc" id="L138">    } else {</span>
+      // Otherwise use the specified coordinates from the parameters
+<span class="fc" id="L140">      spawnPixels = world.getPixels(spawnX, spawnY);</span>
+    }
+<span class="fc" id="L142">    return spawnPixels;</span>
+  }
+
+  public Player getPlayer() {
+<span class="fc" id="L146">    return player;</span>
+  }
+
+  public void setPlayer(Player player) {
+<span class="nc" id="L150">    this.player = player;</span>
+<span class="nc" id="L151">  }</span>
+
+  @Override
+  public void show() {
+<span class="fc" id="L155">    Gdx.input.setInputProcessor(this);</span>
+<span class="fc" id="L156">    isPaused = false;</span>
+<span class="fc" id="L157">    inputDelay = 0.2f;</span>
+<span class="pc bpc" id="L158" title="1 of 2 branches missed.">    if (player != null) {</span>
+<span class="fc" id="L159">      player.getKeyBuffer().clear();</span>
+    }
+<span class="fc" id="L161">  }</span>
+
+  @Override
+  public void hide() {
+<span class="fc" id="L165">    isPaused = true;</span>
+<span class="fc" id="L166">  }</span>
+
+  @Override
+  public void render(float delta) {
+<span class="fc" id="L170">    Gdx.gl.glClearColor(0, 0, 0, 1);</span>
+<span class="fc" id="L171">    Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);</span>
+<span class="pc bpc" id="L172" title="1 of 2 branches missed.">    if (prepareTransition) {</span>
+<span class="nc" id="L173">      return;</span>
+    }
+<span class="pc bpc" id="L175" title="1 of 2 branches missed.">    if (inputDelay &gt; 0.0f) {</span>
+<span class="fc" id="L176">      inputDelay -= delta;</span>
+    } else {
+<span class="nc bnc" id="L178" title="All 2 branches missed.">      if (Gdx.input.isKeyJustPressed(Input.Keys.TAB)) {</span>
+<span class="nc" id="L179">        game.setScreen(new AchievementScreen(game, this));</span>
+<span class="nc" id="L180">        return;</span>
+      }
+
+<span class="nc bnc" id="L183" title="All 2 branches missed.">      if (Gdx.input.isKeyJustPressed(Input.Keys.ESCAPE)</span>
+<span class="nc bnc" id="L184" title="All 2 branches missed.">          || Gdx.input.isKeyJustPressed(Input.Keys.P)) {</span>
+<span class="nc bnc" id="L185" title="All 2 branches missed.">        isPaused = !isPaused;</span>
+<span class="nc bnc" id="L186" title="All 2 branches missed.">        if (!isPaused) {</span>
+<span class="nc" id="L187">          Gdx.input.setInputProcessor(this);</span>
+        }
+      }
+    }
+<span class="pc bpc" id="L191" title="1 of 2 branches missed.">    if (isPaused) {</span>
+<span class="nc bnc" id="L192" title="All 2 branches missed.">      if (gameHud != null) {</span>
+<span class="nc" id="L193">        gameHud.renderPauseScreen();</span>
+      }
+<span class="nc" id="L195">      return;</span>
+    }
+<span class="fc" id="L197">    camera.update();</span>
+<span class="pc bpc" id="L198" title="1 of 2 branches missed.">    if (world != null) {</span>
+<span class="fc" id="L199">      world.render(viewport, renderBuffer);</span>
+    }
+<span class="pc bpc" id="L201" title="1 of 2 branches missed.">    if (player != null) {</span>
+<span class="fc" id="L202">      player.update(delta, renderBuffer);</span>
+    }
+<span class="pc bpc" id="L204" title="1 of 2 branches missed.">    if (world != null) {</span>
+<span class="fc" id="L205">      world.update(delta, player);</span>
+    }
+
+<span class="fc" id="L208">    screenBatch.setProjectionMatrix(camera.combined);</span>
+<span class="fc" id="L209">    screenBatch.begin();</span>
+
+<span class="pc bpc" id="L211" title="1 of 2 branches missed.">    if (renderBuffer != null) {</span>
+<span class="fc bfc" id="L212" title="All 2 branches covered.">      for (var obj : renderBuffer.getBufferOrderedByZaxisIndex()) {</span>
+<span class="fc" id="L213">        obj.render();</span>
+<span class="fc" id="L214">      }</span>
+<span class="fc" id="L215">      renderBuffer.clearBuffer();</span>
+    }
+<span class="fc" id="L217">    screenBatch.end();</span>
+
+<span class="fc" id="L219">    handleFireAlarmLogic(delta);</span>
+<span class="fc" id="L220">    handlePowerOutageLogic(delta);</span>
+
+<span class="fc" id="L222">    renderVignette(currentVignette);</span>
+<span class="pc bpc" id="L223" title="1 of 2 branches missed.">    if (gameHud != null) {</span>
+<span class="fc" id="L224">      gameHud.render();</span>
+    }
+<span class="fc bfc" id="L226" title="All 2 branches covered.">    if (game.getTimerManager().isTimeUp()) {</span>
+<span class="fc" id="L227">      endGame();</span>
+    }
+<span class="fc" id="L229">  }</span>
+
+  private void endGame() {
+<span class="pc bpc" id="L232" title="1 of 2 branches missed.">    if (world != null) {</span>
+<span class="fc" id="L233">      world.getBackgroundMusic().stop();</span>
+    }
+
+<span class="pc bpc" id="L236" title="1 of 2 branches missed.">    if (game.getUsername() == null) {</span>
+<span class="fc" id="L237">      game.setScreen(new UsernameScreen(game));</span>
+    } else {
+<span class="nc" id="L239">      game.setScreen(new EndScreen(game, null));</span>
+    }
+<span class="fc" id="L241">  }</span>
+
+  private void handlePowerOutageLogic(float delta) {
+<span class="fc bfc" id="L244" title="All 2 branches covered.">    if (powerOutage) {</span>
+<span class="fc" id="L245">      this.currentVignette = VignetteLevel.dark;</span>
+<span class="fc" id="L246">      outageTimer -= delta;</span>
+    }
+<span class="fc bfc" id="L248" title="All 2 branches covered.">    if (outageTimer &lt;= 0.0f) {</span>
+<span class="fc" id="L249">      powerOutage = false;</span>
+<span class="fc" id="L250">      this.currentVignette = VignetteLevel.medium;</span>
+    }
+<span class="fc" id="L252">  }</span>
+
+  private void handleFireAlarmLogic(float delta) {
+    // FireAlarmEvent Logic
+<span class="fc bfc" id="L256" title="All 2 branches covered.">    if (game.getTimerManager().getTimeLeft() &lt;= 120) {</span>
+<span class="fc bfc" id="L257" title="All 2 branches covered.">      if (fireEventCheck) {</span>
+<span class="fc" id="L258">        fireEventCheck = false;</span>
+<span class="fc bfc" id="L259" title="All 2 branches covered.">        if (fireAlarmLuck &gt; 0.5) {</span>
+<span class="fc" id="L260">          isFireAlarmActive = true;</span>
+<span class="pc bpc" id="L261" title="1 of 2 branches missed.">          if (world != null) {</span>
+<span class="fc" id="L262">            world.getBackgroundMusic().stop();</span>
+          }
+<span class="fc" id="L264">          game.getEventsCounter().fireEvent();</span>
+<span class="fc" id="L265">          dispose();</span>
+<span class="fc" id="L266">          MorrellScreen screen = new MorrellScreen(game);</span>
+<span class="fc" id="L267">          screen.getGameHud().getSpeechBubbleManager().clear();</span>
+<span class="fc" id="L268">          screen</span>
+<span class="fc" id="L269">              .getGameHud()</span>
+<span class="fc" id="L270">              .getSpeechBubbleManager()</span>
+<span class="fc" id="L271">              .createSpeechBubble(SpeechType.NPC_SPEECH, &quot;The fire alarm went off!&quot;, 5000);</span>
+<span class="fc" id="L272">          screen.getWorld().setBackgroundMusic(fireAlarmSound);</span>
+<span class="fc" id="L273">          game.setScreen(screen);</span>
+<span class="fc" id="L274">          return;</span>
+        }
+      }
+    }
+<span class="pc bpc" id="L278" title="1 of 4 branches missed.">    if (isFireAlarmActive &amp;&amp; fireAlarmTimer &gt;= 0) {</span>
+<span class="fc" id="L279">      this.currentVignette = VignetteLevel.fire;</span>
+<span class="fc" id="L280">      fireAlarmTimer -= delta;</span>
+<span class="pc bpc" id="L281" title="1 of 2 branches missed.">    } else if (isFireAlarmActive) {</span>
+<span class="nc" id="L282">      this.currentVignette = VignetteLevel.medium;</span>
+<span class="nc" id="L283">      isFireAlarmActive = false;</span>
+<span class="nc" id="L284">      world.setBackgroundMusic(Gdx.audio.newMusic(Gdx.files.internal(&quot;audio/library_theme.mp3&quot;)));</span>
+    }
+<span class="fc" id="L286">  }</span>
+
+  @Override
+  public void renderShapes() {
+<span class="fc" id="L290">    game.getShapeRenderer().begin();</span>
+<span class="fc" id="L291">    world.renderDebugLayerShapes();</span>
+<span class="fc" id="L292">    game.getShapeRenderer().end();</span>
+<span class="fc" id="L293">  }</span>
+
+  @Override
+  public void resize(int width, int height) {
+<span class="fc" id="L297">    viewport.update(width, height, false);</span>
+<span class="pc bpc" id="L298" title="1 of 2 branches missed.">    if (gameHud != null) {</span>
+<span class="fc" id="L299">      gameHud.resize(width, height);</span>
+    }
+<span class="fc" id="L301">  }</span>
+
+  public boolean isPrepareTransition() {
+<span class="fc" id="L304">    return prepareTransition;</span>
+  }
+
+  public void setPrepareTransition(boolean prepareTransition) {
+<span class="fc" id="L308">    this.prepareTransition = prepareTransition;</span>
+<span class="fc" id="L309">  }</span>
+
+  public Hud getGameHud() {
+<span class="fc" id="L312">    return gameHud;</span>
+  }
+
+  // Input Processing methods can be added here if needed
+  @Override
+  public boolean keyDown(int keycode) {
+<span class="nc" id="L318">    player.getKeyBuffer().addKeyPressed(keycode);</span>
+<span class="nc" id="L319">    return true;</span>
+  }
+
+  @Override
+  public boolean keyUp(int keycode) {
+<span class="nc" id="L324">    player.getKeyBuffer().removeKeyPressed(keycode);</span>
+<span class="nc" id="L325">    return true;</span>
+  }
+
+  /**
+   * Render the vignette.
+   *
+   * @param level what level of vignette
+   */
+  public void renderVignette(VignetteLevel level) {
+    Texture currentVignette;
+<span class="pc bpc" id="L335" title="1 of 4 branches missed.">    switch (level) {</span>
+<span class="nc" id="L336">      case light -&gt; currentVignette = vignetteLight;</span>
+<span class="fc" id="L337">      case dark -&gt; currentVignette = vignetteDark;</span>
+<span class="fc" id="L338">      case fire -&gt; currentVignette = vignetteFire;</span>
+<span class="fc" id="L339">      default -&gt; currentVignette = vignetteMedium;</span>
+    }
+<span class="fc" id="L341">    screenBatch.setProjectionMatrix(screenBatch.getProjectionMatrix().idt());</span>
+<span class="fc" id="L342">    screenBatch.begin();</span>
+<span class="fc" id="L343">    screenBatch.draw(currentVignette, -1, -1, 2, 2);</span>
+<span class="fc" id="L344">    screenBatch.end();</span>
+<span class="fc" id="L345">    screenBatch.setProjectionMatrix(camera.combined);</span>
+<span class="fc" id="L346">  }</span>
+
+  public GameWorld getWorld() {
+<span class="fc" id="L349">    return this.world;</span>
+  }
+
+  public RenderBuffer getRenderBuffer() {
+<span class="nc" id="L353">    return renderBuffer;</span>
+  }
+
+  public boolean isPaused() {
+<span class="nc" id="L357">    return isPaused;</span>
+  }
+
+  public void setPaused(boolean paused) {
+<span class="nc" id="L361">    isPaused = paused;</span>
+<span class="nc" id="L362">  }</span>
+
+  @Override
+  public void dispose() {
+<span class="pc bpc" id="L366" title="1 of 2 branches missed.">    if (vignetteLight != null) {</span>
+<span class="fc" id="L367">      vignetteLight.dispose();</span>
+    }
+<span class="pc bpc" id="L369" title="1 of 2 branches missed.">    if (vignetteMedium != null) {</span>
+<span class="fc" id="L370">      vignetteMedium.dispose();</span>
+    }
+<span class="pc bpc" id="L372" title="1 of 2 branches missed.">    if (vignetteDark != null) {</span>
+<span class="fc" id="L373">      vignetteDark.dispose();</span>
+    }
+<span class="pc bpc" id="L375" title="1 of 2 branches missed.">    if (gameHud != null) {</span>
+<span class="fc" id="L376">      gameHud.dispose();</span>
+    }
+<span class="pc bpc" id="L378" title="1 of 2 branches missed.">    if (world != null) {</span>
+<span class="fc" id="L379">      world.dispose();</span>
+    }
+<span class="pc bpc" id="L381" title="1 of 2 branches missed.">    if (player != null) {</span>
+<span class="fc" id="L382">      player.dispose();</span>
+    }
+<span class="pc bpc" id="L384" title="1 of 2 branches missed.">    if (fireAlarmSound != null) {</span>
+<span class="fc" id="L385">      fireAlarmSound.dispose();</span>
+    }
+<span class="fc" id="L387">  }</span>
+
+  public VignetteLevel getVignette() {
+<span class="fc" id="L390">    return this.currentVignette;</span>
+  }
+
+  public void setVignette(VignetteLevel type) {
+<span class="fc" id="L394">    this.currentVignette = type;</span>
+<span class="fc" id="L395">  }</span>
+
+  public OrthographicCamera getCamera() {
+<span class="fc" id="L398">    return camera;</span>
+  }
+
+  /** Helper method to set fire alarm active during tests. * */
+  public void setIsFireAlarmActive(boolean bool) {
+<span class="nc" id="L403">    isFireAlarmActive = bool;</span>
+<span class="nc" id="L404">  }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.13.202504020838</span></div></body></html>

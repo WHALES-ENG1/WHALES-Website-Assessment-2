@@ -12,8 +12,10 @@ button {
     transition: translate 0.1s;
 }
 
-button.github {
-    padding: 10px 15px !important;
+button .buttonIcon {
+    padding: 10px 10px !important;
+    width: 60px;
+    image-rendering: pixelated;
 }
 
 button:hover {

@@ -1,0 +1,101 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>TimerManager.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">headless</a> &gt; <a href="index.source.html" class="el_package">com.mathochist.mazegame.userinterface.timers</a> &gt; <span class="el_source">TimerManager.java</span></div><h1>TimerManager.java</h1><pre class="source lang-java linenums">package com.mathochist.mazegame.userinterface.timers;
+
+import com.badlogic.gdx.graphics.OrthographicCamera;
+import com.badlogic.gdx.graphics.g2d.BitmapFont;
+import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import java.util.ArrayList;
+
+/** Manages the timer and its rendering. */
+public class TimerManager {
+
+  public static final double TIME_LIMIT = 300; // 5 mins in seconds
+<span class="fc" id="L12">  public static double START_TIME = 0;</span>
+  private final ArrayList&lt;TimerPenalty&gt; penalties;
+  public double minutesLeft;
+  public double secondsLeft;
+
+  /** Creates a Timer Manager and an array to track penalties. */
+<span class="fc" id="L18">  public TimerManager() {</span>
+<span class="fc" id="L19">    penalties = new ArrayList&lt;&gt;();</span>
+<span class="fc" id="L20">  }</span>
+
+  /** Start the timer. */
+  public void startTimer() {
+<span class="fc" id="L24">    START_TIME = System.currentTimeMillis();</span>
+<span class="fc" id="L25">  }</span>
+
+  /**
+   * Gets the time left in the game.
+   *
+   * @return Time Left
+   */
+  public double getTimeLeft() {
+<span class="fc" id="L33">    double timeElapsed = (System.currentTimeMillis() - START_TIME) / 1000;</span>
+<span class="fc" id="L34">    return TIME_LIMIT - timeElapsed;</span>
+  }
+
+  public boolean isTimeUp() {
+<span class="fc bfc" id="L38" title="All 2 branches covered.">    return getTimeLeft() &lt;= 0;</span>
+  }
+
+  /**
+   * Takes time away by Decrementing the start time.
+   *
+   * @param seconds The amount of seconds penalty
+   */
+  public void addPenalty(double seconds) {
+<span class="fc" id="L47">    START_TIME -= seconds * 1000; // Subtract penalty time from start time</span>
+<span class="fc" id="L48">    penalties.add(new TimerPenalty(seconds, System.currentTimeMillis()));</span>
+<span class="fc" id="L49">  }</span>
+
+  /** Reset the timer. */
+  public void resetTimer() {
+<span class="fc" id="L53">    START_TIME = 0;</span>
+<span class="fc" id="L54">    penalties.clear();</span>
+<span class="fc" id="L55">  }</span>
+
+  /**
+   * render timer using Batch.
+   *
+   * @param font Timer font
+   * @param batch Game SpriteBatch
+   * @param camera Current Camera
+   */
+  public void renderToHud(
+      BitmapFont font, SpriteBatch batch, OrthographicCamera camera) {
+<span class="fc" id="L66">    double timeLeft = this.getTimeLeft();</span>
+<span class="fc" id="L67">    minutesLeft = Math.floor(timeLeft / 60.0);</span>
+<span class="fc" id="L68">    secondsLeft = Math.floor(timeLeft % 60.0);</span>
+<span class="fc" id="L69">    font.draw(</span>
+        batch,
+<span class="fc" id="L71">        &quot;Time: &quot; + (int) minutesLeft + &quot;:&quot; + String.format(&quot;%02d&quot;, (int) secondsLeft),</span>
+        camera.viewportWidth - 120,
+        camera.viewportHeight - 2);
+
+<span class="fc" id="L75">    font.setColor(255, 0, 0, 1);</span>
+
+    // Render penalties
+<span class="fc" id="L78">    float penaltyY = camera.viewportHeight - 30;</span>
+<span class="fc" id="L79">    long currentTime = System.currentTimeMillis();</span>
+<span class="fc" id="L80">    ArrayList&lt;TimerPenalty&gt; expiredPenalties = new ArrayList&lt;&gt;();</span>
+<span class="fc bfc" id="L81" title="All 2 branches covered.">    for (TimerPenalty penalty : penalties) {</span>
+<span class="fc" id="L82">      double timeSinceAdded = (currentTime - penalty.timeAdded()) / 1000.0;</span>
+<span class="pc bpc" id="L83" title="1 of 2 branches missed.">      if (timeSinceAdded &lt;= TimerPenalty.DISPLAY_DURATION) {</span>
+<span class="fc" id="L84">        font.draw(</span>
+            batch,
+<span class="fc" id="L86">            &quot;-&quot; + (int) penalty.penaltySeconds() + &quot;s&quot;,</span>
+            camera.viewportWidth - 120,
+            penaltyY);
+<span class="fc" id="L89">        penaltyY -= 25; // Move up for next penalty</span>
+      } else {
+<span class="nc" id="L91">        expiredPenalties.add(penalty);</span>
+      }
+<span class="fc" id="L93">    }</span>
+
+<span class="fc" id="L95">    font.setColor(1, 1, 1, 1);</span>
+
+    // Remove expired penalties
+<span class="fc" id="L98">    penalties.removeAll(expiredPenalties);</span>
+<span class="fc" id="L99">  }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.13.202504020838</span></div></body></html>

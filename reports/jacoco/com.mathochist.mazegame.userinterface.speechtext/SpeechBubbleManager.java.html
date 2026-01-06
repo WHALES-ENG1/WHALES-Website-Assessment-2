@@ -1,0 +1,94 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>SpeechBubbleManager.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">headless</a> &gt; <a href="index.source.html" class="el_package">com.mathochist.mazegame.userinterface.speechtext</a> &gt; <span class="el_source">SpeechBubbleManager.java</span></div><h1>SpeechBubbleManager.java</h1><pre class="source lang-java linenums">package com.mathochist.mazegame.userinterface.speechtext;
+
+import com.badlogic.gdx.graphics.g2d.BitmapFont;
+import com.mathochist.mazegame.userinterface.Hud;
+import java.util.ArrayList;
+
+/** Manages the Speech Bubbles. */
+public class SpeechBubbleManager {
+  private final Hud hud;
+  private final ArrayList&lt;SpeechBubble&gt; bubbles;
+
+  /**
+   * Creates the Speech Bubble Manager. Create bubbles array.
+   *
+   * @param hud Current instance of HUD
+   */
+<span class="fc" id="L17">  public SpeechBubbleManager(Hud hud) {</span>
+<span class="fc" id="L18">    this.hud = hud;</span>
+<span class="fc" id="L19">    this.bubbles = new ArrayList&lt;&gt;();</span>
+<span class="fc" id="L20">  }</span>
+
+  /** Display Bubbles to Screen. */
+  public void render() {
+<span class="fc" id="L24">    ArrayList&lt;SpeechBubble&gt; bubblesToRemove = new ArrayList&lt;&gt;();</span>
+<span class="fc bfc" id="L25" title="All 2 branches covered.">    for (SpeechBubble bubble : bubbles) {</span>
+<span class="fc" id="L26">      bubble.render();</span>
+<span class="pc bpc" id="L27" title="1 of 2 branches missed.">      if (bubble.isExpired()) {</span>
+<span class="nc" id="L28">        bubble.dispose();</span>
+<span class="nc" id="L29">        bubblesToRemove.add(bubble);</span>
+      }
+<span class="fc" id="L31">    }</span>
+<span class="fc" id="L32">    bubbles.removeAll(bubblesToRemove);</span>
+<span class="fc" id="L33">  }</span>
+
+  /**
+   * Create Speech bubble to display.
+   *
+   * @param type What Speech type is it
+   * @param message Message to display
+   * @param durationMs How long message should list
+   */
+  public void createSpeechBubble(SpeechType type, String message, int durationMs) {
+<span class="fc" id="L43">    SpeechBubble bubble = new SpeechBubble(type, message, durationMs, hud.getMainFont(), hud);</span>
+<span class="fc" id="L44">    bubble.setStartTime(System.currentTimeMillis());</span>
+<span class="fc" id="L45">    bubbles.add(bubble);</span>
+<span class="fc" id="L46">  }</span>
+
+  /**
+   * Create Speech bubble to display with a different font.
+   *
+   * @param type What Speech type is it
+   * @param message Message to display
+   * @param durationMs How long message should list
+   * @param font new font
+   */
+  public void createSpeechBubble(SpeechType type, String message, int durationMs, BitmapFont font) {
+<span class="nc" id="L57">    SpeechBubble bubble = new SpeechBubble(type, message, durationMs, font, hud);</span>
+<span class="nc" id="L58">    bubble.setStartTime(System.currentTimeMillis());</span>
+<span class="nc" id="L59">    bubbles.add(bubble);</span>
+<span class="nc" id="L60">  }</span>
+
+  /** dispose used assets. */
+  public void dispose() {
+<span class="fc bfc" id="L64" title="All 2 branches covered.">    for (SpeechBubble bubble : bubbles) {</span>
+<span class="fc" id="L65">      bubble.dispose();</span>
+<span class="fc" id="L66">    }</span>
+<span class="fc" id="L67">    bubbles.clear();</span>
+<span class="fc" id="L68">  }</span>
+
+  /**
+   * Remove bubbles.
+   *
+   * @param type what type of bubbles to remove
+   */
+  public void removeBubblesOfType(SpeechType type) {
+<span class="fc" id="L76">    ArrayList&lt;SpeechBubble&gt; bubblesToRemove = new ArrayList&lt;&gt;();</span>
+<span class="fc bfc" id="L77" title="All 2 branches covered.">    for (SpeechBubble bubble : bubbles) {</span>
+<span class="pc bpc" id="L78" title="1 of 2 branches missed.">      if (bubble.getType() == type) {</span>
+<span class="fc" id="L79">        bubble.dispose();</span>
+<span class="fc" id="L80">        bubblesToRemove.add(bubble);</span>
+      }
+<span class="fc" id="L82">    }</span>
+<span class="fc" id="L83">    bubbles.removeAll(bubblesToRemove);</span>
+<span class="fc" id="L84">  }</span>
+
+  /** dispose all bubbles. */
+  public void clear() {
+<span class="fc bfc" id="L88" title="All 2 branches covered.">    for (SpeechBubble bubble : bubbles) {</span>
+<span class="fc" id="L89">      bubble.dispose();</span>
+<span class="fc" id="L90">    }</span>
+<span class="fc" id="L91">    bubbles.clear();</span>
+<span class="fc" id="L92">  }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.13.202504020838</span></div></body></html>

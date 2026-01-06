@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>Torch.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">headless</a> &gt; <a href="index.source.html" class="el_package">com.mathochist.mazegame.worlds.object</a> &gt; <span class="el_source">Torch.java</span></div><h1>Torch.java</h1><pre class="source lang-java linenums">package com.mathochist.mazegame.worlds.object;
+
+import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.graphics.g2d.TextureAtlas;
+import com.mathochist.mazegame.Main;
+import com.mathochist.mazegame.entity.MapEntity;
+import com.mathochist.mazegame.entity.Player;
+import com.mathochist.mazegame.entity.playerinventory.InventoryObject;
+import com.mathochist.mazegame.render.RenderBuffer;
+import com.mathochist.mazegame.screen.roomscreen.RoomScreen;
+import com.mathochist.mazegame.screen.roomscreen.VignetteLevel;
+import com.mathochist.mazegame.userinterface.Hud;
+import com.mathochist.mazegame.userinterface.speechtext.SpeechType;
+import com.mathochist.mazegame.worlds.GameWorld;
+
+/**
+ * Represents a torch that when interacted with the player can see in the dark basement. This is
+ * done by setting the vignette to a light one when the player interacts with the torch.
+ */
+public class Torch extends MapEntity {
+  private boolean collected;
+
+  /**
+   * Creates the Torch object using Entity.
+   *
+   * @param game The instance of the game.
+   * @param batch The current SpriteBatch.
+   * @param atlas Which Atlas object is in.
+   * @param tileX X Coord to place at.
+   * @param tileY Y Coord to place at.
+   * @param width Width of object.
+   * @param height Height of object.
+   * @param collidable Is object collidable.
+   */
+  public Torch(
+      Main game,
+      SpriteBatch batch,
+      TextureAtlas atlas,
+      Integer tileX,
+      Integer tileY,
+      Integer width,
+      Integer height,
+      Boolean collidable) {
+<span class="fc" id="L44">    super(game, batch, atlas, &quot;torch&quot;, tileX, tileY, width, height, collidable);</span>
+
+<span class="fc" id="L46">    collected = game.getPlayerInventory().hasItem(InventoryObject.TORCH);</span>
+<span class="fc" id="L47">  }</span>
+
+  @Override
+  public boolean onInteract(Player p, GameWorld world, Hud worldHud) {
+<span class="pc bpc" id="L51" title="1 of 2 branches missed.">    if (collected) {</span>
+<span class="nc" id="L52">      return false;</span>
+    }
+<span class="fc" id="L54">    collected = true;</span>
+<span class="fc" id="L55">    game.getPlayerInventory().addItem(InventoryObject.TORCH);</span>
+<span class="fc" id="L56">    RoomScreen screen = (RoomScreen) game.getScreen();</span>
+<span class="fc" id="L57">    screen.setVignette(VignetteLevel.light);</span>
+<span class="fc" id="L58">    worldHud.getSpeechBubbleManager().removeBubblesOfType(SpeechType.NPC_SPEECH);</span>
+<span class="fc" id="L59">    worldHud</span>
+<span class="fc" id="L60">        .getSpeechBubbleManager()</span>
+<span class="fc" id="L61">        .createSpeechBubble(SpeechType.NPC_SPEECH, &quot;Torch Collected!&quot;, 2000);</span>
+<span class="fc" id="L62">    game.getEventsCounter().torchEvent();</span>
+<span class="fc" id="L63">    return true;</span>
+  }
+
+  @Override
+  public void render(GameWorld world, RenderBuffer renderBuffer) {
+<span class="nc bnc" id="L68" title="All 2 branches missed.">    if (collected) {</span>
+<span class="nc" id="L69">      return;</span>
+    }
+<span class="nc" id="L71">    super.render(world, renderBuffer);</span>
+<span class="nc" id="L72">  }</span>
+
+  /**
+   * Action on collison.
+   *
+   * @param world The game world context.
+   * @return false
+   */
+  public boolean onCollision(GameWorld world) {
+<span class="nc" id="L81">    return false;</span>
+  }
+
+  @Override
+<span class="nc" id="L85">  public void onInteractEnd(Player p, GameWorld world) {}</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.13.202504020838</span></div></body></html>

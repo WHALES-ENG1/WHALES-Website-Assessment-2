@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>Librarian.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">headless</a> &gt; <a href="index.source.html" class="el_package">com.mathochist.mazegame.entity.npc</a> &gt; <span class="el_source">Librarian.java</span></div><h1>Librarian.java</h1><pre class="source lang-java linenums">package com.mathochist.mazegame.entity.npc;
+
+import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.graphics.g2d.TextureAtlas;
+import com.mathochist.mazegame.Main;
+import com.mathochist.mazegame.entity.MapEntity;
+import com.mathochist.mazegame.entity.Player;
+import com.mathochist.mazegame.userinterface.Hud;
+import com.mathochist.mazegame.userinterface.speechtext.SpeechType;
+import com.mathochist.mazegame.worlds.GameWorld;
+
+/**
+ * Librarian Entity that shouts at you for running in the library and tells you to be quiet if you
+ * try to interact with them.
+ */
+public class Librarian extends MapEntity implements Inpc {
+  /**
+   * Create Librarian.
+   *
+   * @param game Current Game instance
+   * @param batch SpriteBatch
+   * @param atlas Atlas Containing Librarian
+   * @param tileX X Coord to place Librarian
+   * @param tileY Y Coord to place Librarian
+   * @param width Width of Librarian
+   * @param height Height of Librarian
+   * @param collidable is librarian collidable
+   */
+  public Librarian(
+      Main game,
+      SpriteBatch batch,
+      TextureAtlas atlas,
+      Integer tileX,
+      Integer tileY,
+      Integer width,
+      Integer height,
+      Boolean collidable) {
+<span class="fc" id="L38">    super(game, batch, atlas, &quot;librarian&quot;, tileX, tileY, width, height, collidable);</span>
+<span class="fc" id="L39">  }</span>
+
+  @Override
+<span class="nc" id="L42">  public void renderPrompt(GameWorld world) {}</span>
+
+  @Override
+<span class="nc" id="L45">  public void renderSpeech(String text, GameWorld world) {}</span>
+
+  @Override
+  public boolean onInteract(Player p, GameWorld world, Hud worldHud) {
+<span class="nc" id="L49">    worldHud.getSpeechBubbleManager().removeBubblesOfType(SpeechType.NPC_SPEECH);</span>
+<span class="nc" id="L50">    worldHud</span>
+<span class="nc" id="L51">        .getSpeechBubbleManager()</span>
+<span class="nc" id="L52">        .createSpeechBubble(SpeechType.NPC_SPEECH, &quot;Librarian: Shhh! This is a library!&quot;, 2000);</span>
+<span class="nc" id="L53">    return true;</span>
+  }
+
+  @Override
+<span class="nc" id="L57">  public void onInteractEnd(Player p, GameWorld world) {}</span>
+
+  @Override
+  public boolean onCollision(GameWorld world) {
+<span class="nc" id="L61">    return false; // no collision behavior</span>
+  }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.13.202504020838</span></div></body></html>

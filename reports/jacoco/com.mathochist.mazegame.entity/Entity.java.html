@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>Entity.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">headless</a> &gt; <a href="index.source.html" class="el_package">com.mathochist.mazegame.entity</a> &gt; <span class="el_source">Entity.java</span></div><h1>Entity.java</h1><pre class="source lang-java linenums">package com.mathochist.mazegame.entity;
+
+import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.graphics.g2d.TextureAtlas;
+import com.mathochist.mazegame.render.RenderBuffer;
+import com.mathochist.mazegame.worlds.GameWorld;
+
+/** Abstract Class representing an entity. */
+public abstract class Entity {
+
+  private final SpriteBatch batch;
+  private final TextureAtlas atlas;
+  private final String regionName;
+
+  private final float tileX;
+  private final float tileY;
+  private final float width;
+  private final float height;
+  private final boolean collidable;
+
+  /**
+   * Create an Entity.
+   *
+   * @param batch current Spritebatch
+   * @param atlas Atlas containing entity
+   * @param regionName name of entity in atlas
+   * @param tileX X coord to place entity
+   * @param tileY Y coord to place entity
+   * @param width width of entity
+   * @param height width of entity
+   * @param collidable is entity collidable
+   */
+  public Entity(
+      SpriteBatch batch,
+      TextureAtlas atlas,
+      String regionName,
+      float tileX,
+      float tileY,
+      float width,
+      float height,
+<span class="fc" id="L41">      boolean collidable) {</span>
+<span class="fc" id="L42">    this.batch = batch;</span>
+<span class="fc" id="L43">    this.atlas = atlas;</span>
+<span class="fc" id="L44">    this.regionName = regionName;</span>
+<span class="fc" id="L45">    this.tileX = tileX;</span>
+<span class="fc" id="L46">    this.tileY = tileY;</span>
+<span class="fc" id="L47">    this.width = width;</span>
+<span class="fc" id="L48">    this.height = height;</span>
+<span class="fc" id="L49">    this.collidable = collidable;</span>
+<span class="fc" id="L50">  }</span>
+
+  /**
+   * Renders the entity onto the provided RenderBuffer within the given GameWorld context.
+   *
+   * @param world The GameWorld context in which the entity exists.
+   * @param renderBuffer The RenderBuffer to which the entity's render data will be added.
+   */
+  public abstract void render(GameWorld world, RenderBuffer renderBuffer);
+
+  public float getTileX() {
+<span class="fc" id="L61">    return tileX;</span>
+  }
+
+  public float getTileY() {
+<span class="fc" id="L65">    return tileY;</span>
+  }
+
+  public float getWidth() {
+<span class="fc" id="L69">    return width;</span>
+  }
+
+  public float getHeight() {
+<span class="fc" id="L73">    return height;</span>
+  }
+
+  public boolean isCollidable() {
+<span class="fc" id="L77">    return collidable;</span>
+  }
+
+  protected SpriteBatch getBatch() {
+<span class="fc" id="L81">    return batch;</span>
+  }
+
+  protected TextureAtlas getAtlas() {
+<span class="fc" id="L85">    return atlas;</span>
+  }
+
+  protected String getRegionName() {
+<span class="fc" id="L89">    return regionName;</span>
+  }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.13.202504020838</span></div></body></html>

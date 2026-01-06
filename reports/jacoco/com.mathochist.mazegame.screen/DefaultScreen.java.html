@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>DefaultScreen.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">headless</a> &gt; <a href="index.source.html" class="el_package">com.mathochist.mazegame.screen</a> &gt; <span class="el_source">DefaultScreen.java</span></div><h1>DefaultScreen.java</h1><pre class="source lang-java linenums">package com.mathochist.mazegame.screen;
+
+import com.badlogic.gdx.InputProcessor;
+import com.mathochist.mazegame.Main;
+
+/**
+ * A default screen implementation that provides empty method bodies for some Screen and
+ * InputProcessor methods.
+ */
+public abstract class DefaultScreen implements IbaseScreen, InputProcessor {
+
+  protected Main game;
+
+  /**
+   * Constructor.
+   *
+   * @param game The main game instance
+   */
+<span class="fc" id="L19">  public DefaultScreen(Main game) {</span>
+<span class="fc" id="L20">    this.game = game;</span>
+<span class="fc" id="L21">  }</span>
+
+  @Override
+<span class="nc" id="L24">  public void pause() {}</span>
+
+  @Override
+<span class="nc" id="L27">  public void resume() {}</span>
+
+  @Override
+  public void hide() {
+<span class="nc" id="L31">    dispose();</span>
+<span class="nc" id="L32">  }</span>
+
+  // InputProcessor methods //
+
+  @Override
+  public boolean keyTyped(char character) {
+<span class="nc" id="L38">    return false;</span>
+  }
+
+  @Override
+  public boolean touchDown(int screenX, int screenY, int pointer, int button) {
+<span class="nc" id="L43">    return false;</span>
+  }
+
+  @Override
+  public boolean touchUp(int screenX, int screenY, int pointer, int button) {
+<span class="nc" id="L48">    return false;</span>
+  }
+
+  @Override
+  public boolean touchCancelled(int screenX, int screenY, int pointer, int button) {
+<span class="nc" id="L53">    return false;</span>
+  }
+
+  @Override
+  public boolean touchDragged(int screenX, int screenY, int pointer) {
+<span class="nc" id="L58">    return false;</span>
+  }
+
+  @Override
+  public boolean mouseMoved(int screenX, int screenY) {
+<span class="nc" id="L63">    return false;</span>
+  }
+
+  @Override
+  public boolean scrolled(float amountX, float amountY) {
+<span class="nc" id="L68">    return false;</span>
+  }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.13.202504020838</span></div></body></html>

@@ -1,0 +1,159 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>Utils.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">headless</a> &gt; <a href="index.source.html" class="el_package">com.mathochist.mazegame.worlds.object</a> &gt; <span class="el_source">Utils.java</span></div><h1>Utils.java</h1><pre class="source lang-java linenums">package com.mathochist.mazegame.worlds.object;
+
+import java.lang.reflect.Constructor;
+import java.lang.reflect.InvocationTargetException;
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+
+/** Class containing various static utility methods for the game. */
+<span class="nc" id="L11">public class Utils {</span>
+
+  /**
+   * Instantiate an object of the given class name with the provided constructor arguments. Ensures
+   * the instantiated object is of the expected type. &lt;br&gt;
+   * &lt;b&gt;Note:&lt;/b&gt; The constructor argument types are inferred from the runtime classes of the
+   * provided arguments. This means that you should not use primitive types (e.g., int, boolean)
+   * directly in the constructor arguments, as they will be boxed into their corresponding wrapper
+   * classes (e.g., Integer, Boolean). &lt;br&gt;
+   * &lt;b&gt;Defo not a safe function and is susceptible to injection code but don't tell anyone
+   * shhhhhh.&lt;/b&gt; &lt;br&gt;
+   * &lt;br&gt;
+   * &lt;b&gt;Example Usage:&lt;/b&gt;
+   *
+   * &lt;pre&gt;
+   *     MyClass obj = Utils.instantiate(&quot;com.example.MyClass&quot;, MyClass.class, &quot;arg1&quot;, 42, true);
+   * &lt;/pre&gt;
+   *
+   * &lt;p&gt;This will attempt to find a constructor in `MyClass` that matches the argument types
+   * `(String, Integer, Boolean)`. &lt;br&gt;
+   * Further examples can be found in GameWorld where this method is used to instantiate world
+   * objects given by JSON data. &lt;br&gt;
+   * &lt;br&gt;
+   * &lt;b&gt;CREDITS: &lt;a
+   * href=&quot;https://stackoverflow.com/questions/9886266/is-there-a-way-to-instantiate-a-class-by-name-in-java&quot;&gt;StackOverflow&lt;/a&gt;&lt;/b&gt;
+   *
+   * @param className The fully qualified name of the class to instantiate.
+   * @param type The expected type of the instantiated object.
+   * @param constructorArgs The arguments to pass to the constructor.
+   * @param &lt;T&gt; The type parameter.
+   * @return An instance of the specified class cast to the expected type.
+   * @throws IllegalStateException If instantiation fails due to reflection issues.
+   */
+  public static &lt;T&gt; T instantiate(String className, Class&lt;T&gt; type, Object... constructorArgs) {
+    try {
+      // return type.cast(Class.forName(className).newInstance());
+<span class="fc" id="L47">      Class&lt;?&gt;[] constructorArgTypes = new Class&lt;?&gt;[constructorArgs.length];</span>
+<span class="fc" id="L48">      System.out.println(Arrays.toString(constructorArgs));</span>
+<span class="fc bfc" id="L49" title="All 2 branches covered.">      for (int i = 0; i &lt; constructorArgs.length; i++) {</span>
+<span class="fc" id="L50">        constructorArgTypes[i] = constructorArgs[i].getClass();</span>
+      }
+      // Type cast is safe here because getConstructorAcceptingSupertypes returns a constructor for
+      // the
+      // class, so we know it will instantiate an instance of the class.
+<span class="fc" id="L55">      return (T)</span>
+<span class="fc" id="L56">          getConstructorAcceptingSupertypes(Class.forName(className), constructorArgTypes)</span>
+<span class="fc" id="L57">              .newInstance(constructorArgs);</span>
+<span class="nc" id="L58">    } catch (InstantiationException</span>
+        | IllegalAccessException
+        | ClassNotFoundException
+        | InvocationTargetException
+        | NoSuchMethodException e) {
+<span class="nc" id="L63">      throw new IllegalStateException(e);</span>
+    }
+  }
+
+  // CHANGED: added method to find constructors that accept child types too for testing. Built in
+  // class method
+  // doesn't accept child types since it might introduce ambiguity if two constructors exist with a
+  // child and parent
+  // class taken as parameters. This is fine in this case because we don't have any of those, and
+  // just throw an
+  // exception if it becomes a problem.
+
+  /**
+   * Returns a constructor from {@code clazz} whose parameter types are all assignable from the
+   * given {@code parameterTypes}. If multiple constructors match, the most specific one is chosen
+   * using assignability rules. &lt;br&gt;
+   * Adapted from &lt;a
+   * href=&quot;https://stackoverflow.com/questions/68429166/why-does-class-getconstructorparameters-not-allow-child-objects-as-parameters&quot;&gt;StackOverflow&lt;/a&gt;
+   *
+   * @author Samuel Knight
+   */
+  private static Constructor&lt;?&gt; getConstructorAcceptingSupertypes(
+      Class&lt;?&gt; clazz, Class&lt;?&gt;... parameterTypes) throws NoSuchMethodException {
+<span class="fc" id="L86">    Constructor&lt;?&gt; best = null;</span>
+
+<span class="fc bfc" id="L88" title="All 2 branches covered.">    for (Constructor&lt;?&gt; constructor : clazz.getConstructors()) {</span>
+<span class="fc" id="L89">      Class&lt;?&gt;[] ctorParams = constructor.getParameterTypes();</span>
+
+      // Parameter count must match
+<span class="fc bfc" id="L92" title="All 2 branches covered.">      if (ctorParams.length != parameterTypes.length) {</span>
+<span class="fc" id="L93">        continue;</span>
+      }
+
+      // Check assignability for each parameter
+<span class="fc" id="L97">      boolean matches = true;</span>
+<span class="fc bfc" id="L98" title="All 2 branches covered.">      for (int i = 0; i &lt; ctorParams.length; i++) {</span>
+<span class="pc bpc" id="L99" title="1 of 2 branches missed.">        if (!ctorParams[i].isAssignableFrom(parameterTypes[i])) {</span>
+<span class="nc" id="L100">          matches = false;</span>
+<span class="nc" id="L101">          break;</span>
+        }
+      }
+<span class="pc bpc" id="L104" title="1 of 2 branches missed.">      if (!matches) {</span>
+<span class="nc" id="L105">        continue;</span>
+      }
+
+      // Assume best for first match
+<span class="pc bpc" id="L109" title="1 of 2 branches missed.">      if (best == null) {</span>
+<span class="fc" id="L110">        best = constructor;</span>
+      } else {
+        // Determine if new candidate is more specific
+<span class="nc" id="L113">        Class&lt;?&gt;[] bestParams = best.getParameterTypes();</span>
+<span class="nc" id="L114">        boolean newIsMoreSpecific = false;</span>
+<span class="nc bnc" id="L115" title="All 2 branches missed.">        for (int i = 0; i &lt; ctorParams.length; i++) {</span>
+<span class="nc bnc" id="L116" title="All 2 branches missed.">          if (bestParams[i].isAssignableFrom(ctorParams[i])) {</span>
+<span class="nc" id="L117">            newIsMoreSpecific = true;</span>
+<span class="nc bnc" id="L118" title="All 2 branches missed.">          } else if (!ctorParams[i].isAssignableFrom(bestParams[i])) {</span>
+            // If incomparable specificity, skip
+<span class="nc" id="L120">            newIsMoreSpecific = false;</span>
+<span class="nc" id="L121">            break;</span>
+          }
+        }
+<span class="nc bnc" id="L124" title="All 2 branches missed.">        if (newIsMoreSpecific) {</span>
+<span class="nc" id="L125">          best = constructor;</span>
+        }
+      }
+    }
+<span class="pc bpc" id="L129" title="1 of 2 branches missed.">    if (best == null) {</span>
+<span class="nc" id="L130">      throw new NoSuchMethodException(</span>
+          &quot;No constructor exists that accepts the given parameter types&quot;);
+    }
+<span class="fc" id="L133">    return best;</span>
+  }
+
+  /**
+   * Returns a new array containing the elements of the input array that are not present in the
+   * subArray.
+   *
+   * @param array The original array.
+   * @param subArray The array of elements to exclude from the original array.
+   * @param &lt;T&gt; The type of the array elements.
+   * @return A new array containing the complement of the subArray in the original array.
+   * @throws IllegalArgumentException if the input array is null.
+   */
+  public static &lt;T&gt; T[] complementOfSubArray(T[] array, T[] subArray) {
+<span class="nc bnc" id="L147" title="All 2 branches missed.">    if (array == null) {</span>
+<span class="nc" id="L148">      throw new IllegalArgumentException(&quot;complementOfSubArray: Array must not be null&quot;);</span>
+    }
+<span class="nc bnc" id="L150" title="All 4 branches missed.">    if (subArray == null || subArray.length == 0) {</span>
+<span class="nc" id="L151">      return Arrays.copyOf(array, array.length);</span>
+    }
+
+<span class="nc" id="L154">    Set&lt;T&gt; exclude = new HashSet&lt;&gt;(Arrays.asList(subArray));</span>
+<span class="nc bnc" id="L155" title="All 2 branches missed.">    List&lt;T&gt; filtered = Arrays.stream(array).filter(e -&gt; !exclude.contains(e)).toList();</span>
+<span class="nc" id="L156">    return filtered.toArray(Arrays.copyOf(array, 0));</span>
+  }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.13.202504020838</span></div></body></html>

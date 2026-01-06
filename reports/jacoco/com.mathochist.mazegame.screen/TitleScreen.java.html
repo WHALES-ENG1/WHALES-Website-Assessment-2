@@ -1,0 +1,201 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>TitleScreen.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">headless</a> &gt; <a href="index.source.html" class="el_package">com.mathochist.mazegame.screen</a> &gt; <span class="el_source">TitleScreen.java</span></div><h1>TitleScreen.java</h1><pre class="source lang-java linenums">package com.mathochist.mazegame.screen;
+
+import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.audio.Music;
+import com.badlogic.gdx.graphics.GL32;
+import com.badlogic.gdx.graphics.OrthographicCamera;
+import com.badlogic.gdx.scenes.scene2d.Actor;
+import com.badlogic.gdx.scenes.scene2d.Stage;
+import com.badlogic.gdx.scenes.scene2d.ui.Button;
+import com.badlogic.gdx.scenes.scene2d.ui.Label;
+import com.badlogic.gdx.scenes.scene2d.ui.Table;
+import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
+import com.badlogic.gdx.utils.Align;
+import com.badlogic.gdx.utils.viewport.FitViewport;
+import com.badlogic.gdx.utils.viewport.Viewport;
+import com.mathochist.mazegame.Main;
+import com.mathochist.mazegame.userinterface.ButtonHoverListener;
+import com.mathochist.mazegame.userinterface.MainMenuUiSkin;
+
+/**
+ * The TitleScreen class represents the title screen of the game. It extends DefaultScreen and
+ * implements the necessary methods to display a stage with UI elements.
+ */
+public class TitleScreen extends DefaultScreen {
+
+  private final Stage stage;
+  private final OrthographicCamera camera;
+  private Table table;
+  private MainMenuUiSkin uiSkin;
+
+  /**
+   * Creates Title Screen.
+   *
+   * @param game Current instance of Game
+   */
+  public TitleScreen(Main game) {
+<span class="fc" id="L37">    super(game);</span>
+<span class="fc" id="L38">    camera = new OrthographicCamera();</span>
+<span class="fc" id="L39">    Viewport viewport = new FitViewport(1280, 720, camera);</span>
+<span class="fc" id="L40">    stage = new Stage(viewport, game.getSpriteBatch());</span>
+<span class="fc" id="L41">  }</span>
+
+  /**
+   * Sets up the stage and UI elements for the title screen. This includes creating a table layout
+   * and adding buttons with listeners. Using a FitViewport to ensure the stage scales correctly
+   * with the window size.
+   */
+  @Override
+  public void show() {
+<span class="fc" id="L50">    Music backgroundMusic = Gdx.audio.newMusic(Gdx.files.internal(&quot;audio/title_screen.mp3&quot;));</span>
+<span class="fc" id="L51">    backgroundMusic.setLooping(true);</span>
+<span class="fc" id="L52">    backgroundMusic.setVolume(0.5f);</span>
+<span class="fc" id="L53">    backgroundMusic.play();</span>
+<span class="fc" id="L54">    Gdx.input.setInputProcessor(stage);</span>
+
+<span class="fc" id="L56">    table = new Table();</span>
+<span class="fc" id="L57">    table.setFillParent(true);</span>
+<span class="fc" id="L58">    table.setDebug(false);</span>
+<span class="fc" id="L59">    stage.addActor(table);</span>
+<span class="fc" id="L60">    Table titleTable = new Table();</span>
+<span class="fc" id="L61">    uiSkin = new MainMenuUiSkin();</span>
+
+    // Add UI elements to the table using uiSkin
+<span class="fc" id="L64">    Label presentsLabel =</span>
+<span class="fc" id="L65">        new Label(&quot;Mathochist Studios &amp; W.H.A.L.E.S. Present&quot;, uiSkin.getSkin(), &quot;presents_grey&quot;);</span>
+<span class="fc" id="L66">    titleTable.add(presentsLabel).expand().padBottom(10);</span>
+<span class="fc" id="L67">    titleTable.row();</span>
+<span class="fc" id="L68">    Label titleLabel = new Label(&quot;All Nighter&quot;, uiSkin.getSkin());</span>
+<span class="fc" id="L69">    titleTable.add(titleLabel);</span>
+
+<span class="fc" id="L71">    Button startButton = new Button(uiSkin.getSkin(), &quot;start_button&quot;);</span>
+<span class="fc" id="L72">    Table buttonTable = new Table();</span>
+<span class="fc" id="L73">    buttonTable.add(startButton).expand().width(95).height(33.333F).padBottom(5).align(Align.left);</span>
+<span class="fc" id="L74">    startButton.addListener(</span>
+<span class="fc" id="L75">        new ChangeListener() {</span>
+          @Override
+          public void changed(ChangeListener.ChangeEvent changeEvent, Actor actor) {
+<span class="nc" id="L78">            game.resetGame();</span>
+<span class="nc" id="L79">            game.setScreen(new IntroScreen(game, backgroundMusic));</span>
+<span class="nc" id="L80">          }</span>
+        });
+<span class="fc" id="L82">    buttonTable.row();</span>
+
+<span class="fc" id="L84">    Button settingsButton = new Button(uiSkin.getSkin(), &quot;settings_button&quot;);</span>
+<span class="fc" id="L85">    buttonTable</span>
+<span class="fc" id="L86">        .add(settingsButton)</span>
+<span class="fc" id="L87">        .expand()</span>
+<span class="fc" id="L88">        .width(126.666F)</span>
+<span class="fc" id="L89">        .height(33.333F)</span>
+<span class="fc" id="L90">        .padBottom(5)</span>
+<span class="fc" id="L91">        .align(Align.left);</span>
+<span class="fc" id="L92">    settingsButton.addListener(</span>
+<span class="fc" id="L93">        new ChangeListener() {</span>
+          @Override
+          public void changed(ChangeListener.ChangeEvent changeEvent, Actor actor) {
+            // TODO: game.setScreen(new SettingsScreen(game));
+<span class="nc" id="L97">            Gdx.app.log(&quot;TitleScreen&quot;, &quot;Settings button clicked - transition to SettingsScreen&quot;);</span>
+<span class="nc" id="L98">          }</span>
+        });
+<span class="fc" id="L100">    buttonTable.row();</span>
+
+<span class="fc" id="L102">    Button creditsButton = new Button(uiSkin.getSkin(), &quot;credits_button&quot;);</span>
+<span class="fc" id="L103">    buttonTable</span>
+<span class="fc" id="L104">        .add(creditsButton)</span>
+<span class="fc" id="L105">        .expand()</span>
+<span class="fc" id="L106">        .width(115)</span>
+<span class="fc" id="L107">        .height(33.333F)</span>
+<span class="fc" id="L108">        .padBottom(5)</span>
+<span class="fc" id="L109">        .align(Align.left);</span>
+<span class="fc" id="L110">    creditsButton.addListener(</span>
+<span class="fc" id="L111">        new ChangeListener() {</span>
+          @Override
+          public void changed(ChangeListener.ChangeEvent changeEvent, Actor actor) {
+            // TODO: game.setScreen(new CreditsScreen(game));
+<span class="nc" id="L115">            Gdx.app.log(&quot;TitleScreen&quot;, &quot;Credits button clicked - transition to CreditsScreen&quot;);</span>
+<span class="nc" id="L116">          }</span>
+        });
+<span class="fc" id="L118">    buttonTable.row();</span>
+
+<span class="fc" id="L120">    Button exitButton = new Button(uiSkin.getSkin(), &quot;exit_button&quot;);</span>
+<span class="fc" id="L121">    buttonTable</span>
+<span class="fc" id="L122">        .add(exitButton)</span>
+<span class="fc" id="L123">        .expand()</span>
+<span class="fc" id="L124">        .width(76.666F)</span>
+<span class="fc" id="L125">        .height(33.333F)</span>
+<span class="fc" id="L126">        .padBottom(5)</span>
+<span class="fc" id="L127">        .align(Align.left);</span>
+<span class="fc" id="L128">    exitButton.addListener(</span>
+<span class="fc" id="L129">        new ChangeListener() {</span>
+          @Override
+          public void changed(ChangeListener.ChangeEvent changeEvent, Actor actor) {
+<span class="nc" id="L132">            Gdx.app.exit();</span>
+<span class="nc" id="L133">          }</span>
+        });
+
+    // Add hover listeners to buttons
+<span class="fc" id="L137">    startButton.addListener(new ButtonHoverListener());</span>
+<span class="fc" id="L138">    exitButton.addListener(new ButtonHoverListener());</span>
+
+    // offset buttons to the left
+<span class="fc" id="L141">    buttonTable.left().padRight(300);</span>
+<span class="fc" id="L142">    buttonTable.bottom();</span>
+
+<span class="fc" id="L144">    table.add(titleTable).expand().padTop(100);</span>
+<span class="fc" id="L145">    table.row();</span>
+
+<span class="fc" id="L147">    table.add(buttonTable).expand().padBottom(150);</span>
+
+<span class="fc" id="L149">    table.setDebug(false); // Set to true to see the table layout</span>
+<span class="fc" id="L150">  }</span>
+
+  /**
+   * Renders the stage and its actors. Clears the screen with a black color before drawing the
+   * stage. TODO: Work out the picture background for the title screen.
+   */
+  @Override
+  public void render(float delta) {
+<span class="nc" id="L158">    Gdx.gl.glClearColor(0, 0, 0, 1);</span>
+<span class="nc" id="L159">    Gdx.gl.glClear(GL32.GL_COLOR_BUFFER_BIT);</span>
+<span class="nc" id="L160">    camera.update();</span>
+
+<span class="nc" id="L162">    stage.act(delta);</span>
+<span class="nc" id="L163">    stage.draw();</span>
+<span class="nc" id="L164">  }</span>
+
+  @Override
+<span class="nc" id="L167">  public void renderShapes() {}</span>
+
+  @Override
+  public void resize(int width, int height) {
+<span class="fc" id="L171">    stage.getViewport().update(width, height, true);</span>
+<span class="fc" id="L172">  }</span>
+
+  @Override
+  public void dispose() {
+<span class="nc" id="L176">    stage.dispose();</span>
+<span class="nc" id="L177">    uiSkin.dispose();</span>
+<span class="nc" id="L178">  }</span>
+
+  public Table getTable() {
+<span class="nc" id="L181">    return table;</span>
+  }
+
+  public Stage getStage() {
+<span class="nc" id="L185">    return stage;</span>
+  }
+
+  // InputProcessor methods //
+  // unnecessary because we use stage as input processor
+
+  @Override
+  public boolean keyDown(int keycode) {
+<span class="nc" id="L193">    return false;</span>
+  }
+
+  @Override
+  public boolean keyUp(int keycode) {
+<span class="nc" id="L198">    return false;</span>
+  }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.13.202504020838</span></div></body></html>

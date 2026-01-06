@@ -1,0 +1,171 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>AchievementScreen.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">headless</a> &gt; <a href="index.source.html" class="el_package">com.mathochist.mazegame.screen</a> &gt; <span class="el_source">AchievementScreen.java</span></div><h1>AchievementScreen.java</h1><pre class="source lang-java linenums">package com.mathochist.mazegame.screen;
+
+import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.Input;
+import com.badlogic.gdx.Screen;
+import com.badlogic.gdx.graphics.Color;
+import com.badlogic.gdx.graphics.GL32;
+import com.badlogic.gdx.graphics.g2d.TextureAtlas;
+import com.badlogic.gdx.graphics.g2d.TextureRegion;
+import com.badlogic.gdx.scenes.scene2d.Stage;
+import com.badlogic.gdx.scenes.scene2d.ui.Image;
+import com.badlogic.gdx.scenes.scene2d.ui.Label;
+import com.badlogic.gdx.scenes.scene2d.ui.Table;
+import com.badlogic.gdx.utils.Align;
+import com.badlogic.gdx.utils.viewport.FitViewport;
+import com.mathochist.mazegame.Main;
+import com.mathochist.mazegame.userinterface.MainMenuUiSkin;
+
+/**
+ * Achievement Screen used to display Achievement progression to the user. Displays during the game
+ * when the user hits TAB. Can return back from this Screen into the game by hitting TAB again.
+ */
+public class AchievementScreen extends DefaultScreen {
+
+  private final Stage stage;
+  private final Screen parentScreen;
+  private final TextureAtlas achievementAtlas;
+  private MainMenuUiSkin uiSkin;
+
+  /**
+   * Creates the Achievement Screen to display.
+   *
+   * @param game Current instance of game
+   * @param parentScreen The Screen the game should return to
+   */
+  public AchievementScreen(Main game, Screen parentScreen) {
+<span class="fc" id="L37">    super(game);</span>
+<span class="fc" id="L38">    this.parentScreen = parentScreen;</span>
+<span class="fc" id="L39">    stage = new Stage(new FitViewport(1280, 720), game.getSpriteBatch());</span>
+<span class="fc" id="L40">    achievementAtlas =</span>
+<span class="fc" id="L41">        new TextureAtlas(Gdx.files.internal(&quot;game_ui/achievements/achievements.atlas&quot;));</span>
+<span class="fc" id="L42">  }</span>
+
+  @Override
+  public void show() {
+<span class="fc" id="L46">    Gdx.input.setInputProcessor(stage);</span>
+<span class="fc" id="L47">    uiSkin = new MainMenuUiSkin();</span>
+
+<span class="fc" id="L49">    Table table = new Table();</span>
+<span class="fc" id="L50">    table.setFillParent(true);</span>
+<span class="fc" id="L51">    stage.addActor(table);</span>
+    // table.setDebug(true);
+
+    // Add UI elements to the table using uiSkin
+<span class="fc" id="L55">    Label titleLabel = new Label(&quot;Achievements&quot;, uiSkin.getSkin(), &quot;game_font&quot;);</span>
+<span class="fc" id="L56">    titleLabel.setFontScale(1.5f);</span>
+<span class="fc" id="L57">    table.add(titleLabel).colspan(5).padBottom(50).center();</span>
+<span class="fc" id="L58">    table.row();</span>
+    // Displays square icons to track progress
+<span class="fc" id="L60">    boolean allEventsDone = game.getAchievementHandler().isAllEventsTriggeredEarned();</span>
+<span class="fc" id="L61">    table</span>
+<span class="fc" id="L62">        .add(</span>
+<span class="fc" id="L63">            createAchievementSquare(</span>
+                &quot;All Events &quot;, &quot;all_events_triggered&quot;, allEventsDone, &quot;Trigger all events&quot;))
+<span class="fc" id="L65">        .pad(20);</span>
+<span class="fc" id="L66">    boolean fastEscapeDone = game.getAchievementHandler().isFastEscapeEarned();</span>
+<span class="fc" id="L67">    table</span>
+<span class="fc" id="L68">        .add(</span>
+<span class="fc" id="L69">            createAchievementSquare(</span>
+                &quot;Fast Escape&quot;, &quot;fast_escape&quot;, fastEscapeDone, &quot;Escape within 2:30&quot;))
+<span class="fc" id="L71">        .pad(20);</span>
+<span class="fc" id="L72">    boolean noNegativesDone = game.getAchievementHandler().isNoNegativeEventsEarned();</span>
+<span class="fc" id="L73">    table</span>
+<span class="fc" id="L74">        .add(</span>
+<span class="fc" id="L75">            createAchievementSquare(</span>
+                &quot;Clean Sheet&quot;, &quot;no_negatives&quot;, noNegativesDone, &quot;No negative Events&quot;))
+<span class="fc" id="L77">        .pad(20);</span>
+<span class="fc" id="L78">    boolean slowAndSteadyDone = game.getAchievementHandler().isSlowAndSteadyEarned();</span>
+<span class="fc" id="L79">    table</span>
+<span class="fc" id="L80">        .add(</span>
+<span class="fc" id="L81">            createAchievementSquare(</span>
+                &quot;Slow and Steady&quot;, &quot;slow_and_steady&quot;, slowAndSteadyDone, &quot;Don't sprint&quot;))
+<span class="fc" id="L83">        .pad(20);</span>
+<span class="fc" id="L84">    boolean longBoiDone = game.getAchievementHandler().isDuckFound();</span>
+<span class="fc" id="L85">    table</span>
+<span class="fc" id="L86">        .add(createAchievementSquare(&quot;Long Boi&quot;, &quot;long_boi&quot;, longBoiDone, &quot;Find Long Boi&quot;))</span>
+<span class="fc" id="L87">        .pad(20);</span>
+
+<span class="fc" id="L89">    table.row();</span>
+
+<span class="fc" id="L91">    Label backLabel = new Label(&quot;Press TAB to return&quot;, uiSkin.getSkin(), &quot;game_font&quot;);</span>
+<span class="fc" id="L92">    backLabel.setColor(Color.GRAY);</span>
+<span class="fc" id="L93">    table.add(backLabel).colspan(5).padTop(100);</span>
+<span class="fc" id="L94">  }</span>
+
+  /**
+   * Helper method to clean up repeated Code.
+   *
+   * @param title Used to Label the Achievement.
+   * @param regionName What the square is called in the atlas.
+   * @param isUnlocked Whether Achievement has been completed.
+   * @param description How to trigger Achievements
+   */
+  private Table createAchievementSquare(
+      String title, String regionName, boolean isUnlocked, String description) {
+
+<span class="fc" id="L107">    TextureRegion region = achievementAtlas.findRegion(regionName);</span>
+<span class="fc" id="L108">    Image icon = new Image(region);</span>
+
+    // Greyed out if Achievement isn't complete
+<span class="fc bfc" id="L111" title="All 2 branches covered.">    if (!isUnlocked) {</span>
+<span class="fc" id="L112">      icon.setColor(new Color(0.2f, 0.2f, 0.2f, 1f));</span>
+    }
+<span class="fc" id="L114">    Table square = new Table();</span>
+<span class="fc" id="L115">    Label nameLabel = new Label(title, uiSkin.getSkin(), &quot;game_font&quot;);</span>
+<span class="fc" id="L116">    Label descriptionLabel = new Label(description, uiSkin.getSkin(), &quot;game_font&quot;);</span>
+<span class="fc" id="L117">    descriptionLabel.setFontScale(0.5f);</span>
+<span class="fc" id="L118">    nameLabel.setAlignment(Align.center);</span>
+<span class="fc" id="L119">    square.add(nameLabel).row();</span>
+<span class="fc" id="L120">    square.add(icon).size(128, 128).padBottom(10).row();</span>
+<span class="fc" id="L121">    square.add(descriptionLabel).row();</span>
+
+<span class="fc" id="L123">    return square;</span>
+  }
+
+  @Override
+  public boolean keyDown(int i) {
+<span class="nc" id="L128">    return false;</span>
+  }
+
+  @Override
+  public boolean keyUp(int i) {
+<span class="nc" id="L133">    return false;</span>
+  }
+
+  @Override
+<span class="nc" id="L137">  public void renderShapes() {}</span>
+
+  @Override
+  public void render(float v) {
+<span class="nc" id="L141">    Gdx.gl.glClearColor(0, 0, 0, 1);</span>
+<span class="nc" id="L142">    Gdx.gl.glClear(GL32.GL_COLOR_BUFFER_BIT);</span>
+
+<span class="nc bnc" id="L144" title="All 2 branches missed.">    if (Gdx.input.isKeyJustPressed(Input.Keys.TAB)) {</span>
+<span class="nc bnc" id="L145" title="All 2 branches missed.">      if (parentScreen != null) {</span>
+<span class="nc" id="L146">        game.setScreen(parentScreen);</span>
+      } else {
+<span class="nc" id="L148">        game.setScreen(new TitleScreen(game));</span>
+      }
+<span class="nc" id="L150">      return;</span>
+    }
+<span class="nc" id="L152">    stage.act(v);</span>
+<span class="nc" id="L153">    stage.draw();</span>
+<span class="nc" id="L154">  }</span>
+
+  @Override
+  public void resize(int width, int height) {
+<span class="fc" id="L158">    stage.getViewport().update(width, height, true);</span>
+<span class="fc" id="L159">  }</span>
+
+  @Override
+  public void dispose() {
+<span class="nc" id="L163">    stage.dispose();</span>
+<span class="nc" id="L164">    uiSkin.dispose();</span>
+
+<span class="nc bnc" id="L166" title="All 2 branches missed.">    if (achievementAtlas != null) {</span>
+<span class="nc" id="L167">      achievementAtlas.dispose();</span>
+    }
+<span class="nc" id="L169">  }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.13.202504020838</span></div></body></html>

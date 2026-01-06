@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>RenderBuffer.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">headless</a> &gt; <a href="index.source.html" class="el_package">com.mathochist.mazegame.render</a> &gt; <span class="el_source">RenderBuffer.java</span></div><h1>RenderBuffer.java</h1><pre class="source lang-java linenums">package com.mathochist.mazegame.render;
+
+import java.util.Comparator;
+import java.util.LinkedList;
+
+/** Create a Render Buffer. */
+public class RenderBuffer {
+
+  private final LinkedList&lt;RenderObject&gt; buffer;
+
+  /** Create a Render buffer and create a list as a buffer. */
+<span class="fc" id="L12">  public RenderBuffer() {</span>
+<span class="fc" id="L13">    this.buffer = new LinkedList&lt;&gt;();</span>
+<span class="fc" id="L14">  }</span>
+
+  /**
+   * add to the buffer.
+   *
+   * @param obj object to add to buffer
+   */
+  public synchronized void addToBuffer(RenderObject obj) {
+<span class="fc" id="L22">    this.buffer.add(obj);</span>
+<span class="fc" id="L23">  }</span>
+
+  public synchronized LinkedList&lt;RenderObject&gt; getRawBuffer() {
+<span class="nc" id="L26">    return this.buffer;</span>
+  }
+
+  /**
+   * Return Objects to in order of depth.
+   *
+   * @return ordered buffer
+   */
+  public synchronized LinkedList&lt;RenderObject&gt; getBufferOrderedByZaxisIndex() {
+<span class="fc" id="L35">    LinkedList&lt;RenderObject&gt; ordered = new LinkedList&lt;&gt;(this.buffer);</span>
+<span class="fc" id="L36">    ordered.sort(Comparator.comparingInt(RenderObject::getzIndex));</span>
+<span class="fc" id="L37">    return ordered;</span>
+  }
+
+  /** delete buffer. */
+  public synchronized void clearBuffer() {
+<span class="fc" id="L42">    this.buffer.clear();</span>
+<span class="fc" id="L43">  }</span>
+
+  public synchronized boolean isEmpty() {
+<span class="nc" id="L46">    return this.buffer.isEmpty();</span>
+  }
+
+  /**
+   * Return size of buffer.
+   *
+   * @return size
+   */
+  public synchronized int size() {
+<span class="nc" id="L55">    return this.buffer.size();</span>
+  }
+
+  /** sort buffer. */
+  public synchronized void sortBufferByZaxisIndex() {
+<span class="nc" id="L60">    this.buffer.sort(Comparator.comparingInt(RenderObject::getzIndex));</span>
+<span class="nc" id="L61">  }</span>
+
+  @Override
+  public String toString() {
+<span class="nc" id="L65">    StringBuilder sb = new StringBuilder();</span>
+<span class="nc" id="L66">    sb.append(&quot;RenderBuffer: [\n&quot;);</span>
+<span class="nc bnc" id="L67" title="All 2 branches missed.">    for (RenderObject obj : this.buffer) {</span>
+<span class="nc" id="L68">      sb.append(&quot;  &quot;).append(obj.toString()).append(&quot;\n&quot;);</span>
+<span class="nc" id="L69">    }</span>
+<span class="nc" id="L70">    sb.append(&quot;]&quot;);</span>
+<span class="nc" id="L71">    return sb.toString();</span>
+  }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.13.202504020838</span></div></body></html>

@@ -1,0 +1,170 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>GameMap.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">headless</a> &gt; <a href="index.source.html" class="el_package">com.mathochist.mazegame.worlds</a> &gt; <span class="el_source">GameMap.java</span></div><h1>GameMap.java</h1><pre class="source lang-java linenums">package com.mathochist.mazegame.worlds;
+
+import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.audio.Music;
+import com.badlogic.gdx.files.FileHandle;
+import com.badlogic.gdx.utils.Json;
+import com.badlogic.gdx.utils.JsonReader;
+import com.badlogic.gdx.utils.JsonValue;
+
+/**
+ * Primary function of this class is to read the current map (room) and have helper functions to be
+ * used in other classes.
+ */
+public class GameMap {
+
+  private final FileHandle mapFile;
+  private final JsonValue mapData;
+
+  /**
+   * Start reading Map Data.
+   *
+   * @param mapFile File with the map data.
+   */
+<span class="fc" id="L24">  public GameMap(FileHandle mapFile) {</span>
+
+<span class="fc" id="L26">    this.mapFile = mapFile;</span>
+<span class="fc" id="L27">    JsonReader jsonReader = new JsonReader();</span>
+<span class="fc" id="L28">    this.mapData = jsonReader.parse(this.mapFile);</span>
+<span class="fc" id="L29">  }</span>
+
+  public FileHandle getMapFile() {
+<span class="nc" id="L32">    return mapFile;</span>
+  }
+
+  public JsonValue getMapData() {
+<span class="nc" id="L36">    return mapData;</span>
+  }
+
+  public String getMapName() {
+<span class="nc" id="L40">    return mapData.get(&quot;metadata&quot;).getString(&quot;name&quot;);</span>
+  }
+
+  public String getMapAuthor() {
+<span class="nc" id="L44">    return mapData.get(&quot;metadata&quot;).getString(&quot;author&quot;);</span>
+  }
+
+  public String getMapVersion() {
+<span class="nc" id="L48">    return mapData.get(&quot;metadata&quot;).getString(&quot;version&quot;);</span>
+  }
+
+  public int getTileWidth() {
+<span class="fc" id="L52">    return mapData.get(&quot;metadata&quot;).get(&quot;tilesets&quot;).getInt(&quot;tile_width&quot;);</span>
+  }
+
+  public int getTileHeight() {
+<span class="fc" id="L56">    return mapData.get(&quot;metadata&quot;).get(&quot;tilesets&quot;).getInt(&quot;tile_height&quot;);</span>
+  }
+
+  public int getMapWidth() {
+<span class="fc" id="L60">    return mapData.get(&quot;metadata&quot;).getInt(&quot;map_width&quot;);</span>
+  }
+
+  public int getMapHeight() {
+<span class="fc" id="L64">    return mapData.get(&quot;metadata&quot;).getInt(&quot;map_height&quot;);</span>
+  }
+
+  public int getSpawnX() {
+<span class="fc" id="L68">    return mapData.get(&quot;metadata&quot;).get(&quot;spawn_point&quot;).getInt(&quot;x&quot;);</span>
+  }
+
+  public int getSpawnY() {
+<span class="fc" id="L72">    return mapData.get(&quot;metadata&quot;).get(&quot;spawn_point&quot;).getInt(&quot;y&quot;);</span>
+  }
+
+  /**
+   * Read Map and return the music that is supposed to be playing.
+   *
+   * @return return the music file.
+   */
+  public Music getBackgroundMusic() {
+<span class="fc" id="L81">    String musicFile = mapData.get(&quot;metadata&quot;).getString(&quot;background_music&quot;);</span>
+<span class="pc bpc" id="L82" title="2 of 6 branches missed.">    if (musicFile.equals(&quot;none&quot;) || musicFile.isEmpty() || musicFile.equals(&quot;continue&quot;)) {</span>
+<span class="fc" id="L83">      return null;</span>
+    }
+<span class="fc" id="L85">    return Gdx.audio.newMusic(Gdx.files.internal(musicFile));</span>
+  }
+
+  public String getBackgroundMusicFile() {
+<span class="fc" id="L89">    return mapData.get(&quot;metadata&quot;).getString(&quot;background_music&quot;);</span>
+  }
+
+  /**
+   * Get the names of the tiles.
+   *
+   * @return names in the tileset.
+   */
+  public String[] getTilesetRegionNames() {
+<span class="fc" id="L98">    JsonValue tileset = mapData.get(&quot;tiles&quot;);</span>
+<span class="fc" id="L99">    Json json = new Json();</span>
+<span class="fc" id="L100">    return json.readValue(String[].class, tileset);</span>
+  }
+
+  /**
+   * Get the tiles that the player can collide with.
+   *
+   * @return The numbers representing colliding tiles in the matrix.
+   */
+  public int[] getCollisionTiles() {
+<span class="fc" id="L109">    JsonValue collisionTiles = mapData.get(&quot;collision_tiles&quot;);</span>
+<span class="fc" id="L110">    Json json = new Json();</span>
+<span class="fc" id="L111">    return json.readValue(int[].class, collisionTiles);</span>
+  }
+
+  /**
+   * Return the matrix that represents the map.
+   *
+   * @return Matrix of the map.
+   */
+  public int[][] getMapMatrix() {
+<span class="fc" id="L120">    JsonValue matrixData = this.mapData.get(&quot;map_matrix&quot;);</span>
+<span class="fc" id="L121">    Json json = new Json();</span>
+<span class="fc" id="L122">    return json.readValue(int[][].class, matrixData);</span>
+  }
+
+  public String getTextureAtlasFile() {
+<span class="fc" id="L126">    return mapData.get(&quot;metadata&quot;).getString(&quot;texture_atlas&quot;);</span>
+  }
+
+  public JsonValue getObjectsLayer() {
+<span class="fc" id="L130">    return mapData.get(&quot;metadata&quot;).get(&quot;map_objects&quot;);</span>
+  }
+
+  public int getNumberOfMapEntities() {
+<span class="fc" id="L134">    return mapData.get(&quot;metadata&quot;).getInt(&quot;map_entity_number&quot;);</span>
+  }
+
+  private ExitConditions getExitConditions(JsonValue exitConditionsData) {
+<span class="fc" id="L138">    Json json = new Json();</span>
+<span class="fc" id="L139">    String[] requiredItems =</span>
+<span class="fc" id="L140">        json.readValue(String[].class, exitConditionsData.get(&quot;inventory_items_required&quot;));</span>
+<span class="fc" id="L141">    String[] requiredQuests =</span>
+<span class="fc" id="L142">        json.readValue(String[].class, exitConditionsData.get(&quot;quests_completed&quot;));</span>
+<span class="fc" id="L143">    String[] npcsInteracted =</span>
+<span class="fc" id="L144">        json.readValue(String[].class, exitConditionsData.get(&quot;npcs_interacted&quot;));</span>
+<span class="fc" id="L145">    int minTimeElapsed = exitConditionsData.getInt(&quot;min_time_elapsed&quot;);</span>
+<span class="fc" id="L146">    return new ExitConditions(requiredItems, requiredQuests, npcsInteracted, minTimeElapsed);</span>
+  }
+
+  /**
+   * Get exitTiles of the Map.
+   *
+   * @return exitTiles
+   */
+  public ExitTile[] getExitPoints() {
+<span class="fc" id="L155">    JsonValue exitPoints = mapData.get(&quot;metadata&quot;).get(&quot;exit_points&quot;);</span>
+<span class="fc" id="L156">    ExitTile[] exitTiles = new ExitTile[exitPoints.size];</span>
+<span class="fc bfc" id="L157" title="All 2 branches covered.">    for (int j = 0; j &lt; exitPoints.size; j++) {</span>
+<span class="fc" id="L158">      JsonValue exitPoint = exitPoints.get(j);</span>
+<span class="fc" id="L159">      String targetMap = exitPoint.getString(&quot;target_map&quot;);</span>
+<span class="fc" id="L160">      int tileX = exitPoint.getInt(&quot;x&quot;);</span>
+<span class="fc" id="L161">      int tileY = exitPoint.getInt(&quot;y&quot;);</span>
+<span class="fc" id="L162">      int targetX = exitPoint.getInt(&quot;target_x&quot;);</span>
+<span class="fc" id="L163">      int targetY = exitPoint.getInt(&quot;target_y&quot;);</span>
+<span class="fc" id="L164">      ExitConditions conditions = getExitConditions(exitPoint.get(&quot;exit_conditions&quot;));</span>
+<span class="fc" id="L165">      exitTiles[j] = new ExitTile(tileX, tileY, targetMap, targetX, targetY, conditions);</span>
+    }
+<span class="fc" id="L167">    return exitTiles;</span>
+  }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.13.202504020838</span></div></body></html>

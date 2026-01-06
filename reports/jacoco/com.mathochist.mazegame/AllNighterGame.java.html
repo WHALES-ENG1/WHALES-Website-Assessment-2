@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>AllNighterGame.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">headless</a> &gt; <a href="index.source.html" class="el_package">com.mathochist.mazegame</a> &gt; <span class="el_source">AllNighterGame.java</span></div><h1>AllNighterGame.java</h1><pre class="source lang-java linenums">package com.mathochist.mazegame;
+
+import com.badlogic.gdx.Game;
+import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.Screen;
+import com.mathochist.mazegame.screen.IbaseScreen;
+
+/**
+ * Abstract Game class that controls screen operations.
+ */
+<span class="fc" id="L11">public abstract class AllNighterGame extends Game {</span>
+  protected IbaseScreen screen;
+
+  @Override
+  public IbaseScreen getScreen() {
+<span class="fc" id="L16">    return screen;</span>
+  }
+
+  /**
+   * Sets the current screen. {@link Screen#hide()} is called on any old screen, and {@link
+   * Screen#show()} is called on the new screen, if any.
+   *
+   * @param screen may be {@code null}
+   */
+  public void setScreen(IbaseScreen screen) {
+<span class="fc bfc" id="L26" title="All 2 branches covered.">    if (this.screen != null) {</span>
+<span class="fc" id="L27">      this.screen.hide();</span>
+    }
+<span class="fc" id="L29">    this.screen = screen;</span>
+<span class="pc bpc" id="L30" title="1 of 2 branches missed.">    if (this.screen != null) {</span>
+<span class="fc" id="L31">      this.screen.show();</span>
+<span class="fc" id="L32">      this.screen.resize(Gdx.graphics.getWidth(), Gdx.graphics.getHeight());</span>
+    }
+<span class="fc" id="L34">  }</span>
+
+  // if game receives a Screen
+  @Override
+  public void setScreen(Screen screen) {
+<span class="nc bnc" id="L39" title="All 2 branches missed.">    if (screen instanceof IbaseScreen) {</span>
+<span class="nc" id="L40">      setScreen((IbaseScreen) screen);</span>
+    } else {
+<span class="nc" id="L42">      super.setScreen(screen);</span>
+    }
+<span class="nc" id="L44">  }</span>
+
+  @Override
+  public void render() {
+<span class="pc bpc" id="L48" title="1 of 2 branches missed.">    if (screen != null) {</span>
+<span class="fc" id="L49">      screen.render(Gdx.graphics.getDeltaTime());</span>
+<span class="fc" id="L50">      screen.renderShapes();</span>
+    }
+<span class="fc" id="L52">  }</span>
+
+  @Override
+  public void resize(int width, int height) {
+<span class="nc bnc" id="L56" title="All 2 branches missed.">    if (screen != null) {</span>
+<span class="nc" id="L57">      screen.resize(width, height);</span>
+    }
+<span class="nc" id="L59">  }</span>
+
+  @Override
+  public void pause() {
+<span class="pc bpc" id="L63" title="1 of 2 branches missed.">    if (screen != null) {</span>
+<span class="nc" id="L64">      screen.pause();</span>
+    }
+<span class="fc" id="L66">  }</span>
+
+  @Override
+  public void resume() {
+<span class="nc bnc" id="L70" title="All 2 branches missed.">    if (screen != null) {</span>
+<span class="nc" id="L71">      screen.resume();</span>
+    }
+<span class="nc" id="L73">  }</span>
+
+  @Override
+  public void dispose() {
+<span class="pc bpc" id="L77" title="1 of 2 branches missed.">    if (screen != null) {</span>
+<span class="nc" id="L78">      screen.dispose();</span>
+    }
+<span class="fc" id="L80">  }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.13.202504020838</span></div></body></html>

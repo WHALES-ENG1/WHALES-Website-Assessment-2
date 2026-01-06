@@ -1,0 +1,123 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>SpeechBubble.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">headless</a> &gt; <a href="index.source.html" class="el_package">com.mathochist.mazegame.userinterface.speechtext</a> &gt; <span class="el_source">SpeechBubble.java</span></div><h1>SpeechBubble.java</h1><pre class="source lang-java linenums">package com.mathochist.mazegame.userinterface.speechtext;
+
+import com.badlogic.gdx.graphics.Color;
+import com.badlogic.gdx.graphics.Pixmap;
+import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.graphics.g2d.BitmapFont;
+import com.badlogic.gdx.graphics.g2d.GlyphLayout;
+import com.badlogic.gdx.graphics.g2d.TextureAtlas;
+import com.mathochist.mazegame.userinterface.Hud;
+import java.util.Objects;
+
+/**
+ * SpeechBubble used to guide or warn the player in the game and to confirm objects they have
+ * interacted with.
+ */
+public class SpeechBubble {
+
+  private final Hud hud;
+  private final SpeechType type;
+  private final String message;
+  private final int durationMs;
+  private final BitmapFont font;
+  private final Texture pixel;
+  private double startTime;
+
+  // CHANGED: Uses sprite batch for all speech bubble rendering, instead of shape renderer.
+  // This was done to avoid issues with the order of centralised rendering covering text from speech
+  // bubbles
+
+  /**
+   * Create a SpeechBubble.
+   *
+   * @param type What SpeechType
+   * @param message the message
+   * @param durationMs the length to display it for
+   * @param font the font
+   * @param hud current instance of HUD.
+   */
+<span class="fc" id="L39">  public SpeechBubble(SpeechType type, String message, int durationMs, BitmapFont font, Hud hud) {</span>
+<span class="fc" id="L40">    this.type = type;</span>
+<span class="fc" id="L41">    this.message = message;</span>
+<span class="fc" id="L42">    this.durationMs = durationMs;</span>
+<span class="fc" id="L43">    this.font = font;</span>
+<span class="fc" id="L44">    this.hud = hud;</span>
+
+    // Create a single pixel texture to use to draw rectangles
+<span class="fc" id="L47">    Pixmap pm = new Pixmap(1, 1, Pixmap.Format.RGBA8888);</span>
+<span class="fc" id="L48">    pm.setColor(Color.WHITE);</span>
+<span class="fc" id="L49">    pm.fill();</span>
+<span class="fc" id="L50">    this.pixel = new Texture(pm);</span>
+<span class="fc" id="L51">    pm.dispose();</span>
+<span class="fc" id="L52">  }</span>
+
+  private void renderNpcBubble() {
+<span class="fc" id="L55">    GlyphLayout layout = new GlyphLayout(font, message);</span>
+
+<span class="fc" id="L57">    float padding = 40.0f;</span>
+<span class="fc" id="L58">    float bubbleWidth = layout.width + padding * 2;</span>
+<span class="fc" id="L59">    float bubbleHeight = layout.height + padding * 2;</span>
+<span class="fc" id="L60">    float bubbleX = (hud.getHudCamera().viewportWidth - bubbleWidth) / 2.0f;</span>
+<span class="fc" id="L61">    float bubbleY = hud.getHudCamera().viewportHeight - bubbleHeight - 40.0f;</span>
+
+    // Draw rectangle
+<span class="fc" id="L64">    hud.getHudBatch().setColor(Color.BLACK); // Black rectangle</span>
+<span class="fc" id="L65">    hud.getHudBatch().draw(pixel, bubbleX, bubbleY, bubbleWidth, bubbleHeight);</span>
+<span class="fc" id="L66">    hud.getHudBatch().setColor(Color.WHITE); // Reset</span>
+
+    // Draw carriage return arrow below speech bubble.
+<span class="fc" id="L69">    TextureAtlas.AtlasRegion carriageReturnAsset =</span>
+<span class="fc" id="L70">        hud.getGameUiAtlas().findRegion(&quot;speech_bubble_carriage_return&quot;);</span>
+<span class="fc" id="L71">    float arrowWidth = carriageReturnAsset.originalWidth / 1.5f;</span>
+<span class="fc" id="L72">    float arrowHeight = carriageReturnAsset.originalHeight / 1.5f;</span>
+<span class="fc" id="L73">    float arrowX = hud.getHudCamera().viewportWidth / 2.0f - arrowWidth / 2.0f;</span>
+<span class="fc" id="L74">    float arrowY =</span>
+<span class="fc" id="L75">        (float) (bubbleY + 5.0f * Math.sin(System.currentTimeMillis() / 200.0))</span>
+            - arrowHeight / 2.0f;
+<span class="fc" id="L77">    hud.getHudBatch().draw(carriageReturnAsset, arrowX, arrowY, arrowWidth, arrowHeight);</span>
+
+    // Draw text
+<span class="fc" id="L80">    font.draw(hud.getHudBatch(), message, bubbleX + padding, bubbleY + bubbleHeight - padding);</span>
+<span class="fc" id="L81">  }</span>
+
+<span class="nc" id="L83">  private void pass() {}</span>
+
+  // TODO: Add more speech bubble types and their render methods
+
+  /** render NPC Speech. */
+  public void render() {
+<span class="pc bpc" id="L89" title="1 of 2 branches missed.">    if (Objects.requireNonNull(type) == SpeechType.NPC_SPEECH) {</span>
+<span class="fc" id="L90">      renderNpcBubble();</span>
+    } else {
+<span class="nc" id="L92">      pass();</span>
+    }
+<span class="fc" id="L94">  }</span>
+
+  public SpeechType getType() {
+<span class="fc" id="L97">    return type;</span>
+  }
+
+  public String getMessage() {
+<span class="nc" id="L101">    return message;</span>
+  }
+
+  public int getDurationMs() {
+<span class="nc" id="L105">    return durationMs;</span>
+  }
+
+  public BitmapFont getFont() {
+<span class="nc" id="L109">    return font;</span>
+  }
+
+  public void setStartTime(double startTime) {
+<span class="fc" id="L113">    this.startTime = startTime;</span>
+<span class="fc" id="L114">  }</span>
+
+  public boolean isExpired() {
+<span class="pc bpc" id="L117" title="1 of 2 branches missed.">    return (System.currentTimeMillis() - startTime) &gt;= durationMs;</span>
+  }
+
+  /** Dispose Used Assets. */
+<span class="fc" id="L121">  public void dispose() {}</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.13.202504020838</span></div></body></html>

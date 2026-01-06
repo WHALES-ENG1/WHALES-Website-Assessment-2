@@ -1,0 +1,290 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>Dean.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">headless</a> &gt; <a href="index.source.html" class="el_package">com.mathochist.mazegame.entity.npc</a> &gt; <span class="el_source">Dean.java</span></div><h1>Dean.java</h1><pre class="source lang-java linenums">package com.mathochist.mazegame.entity.npc;
+
+import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.graphics.g2d.Animation;
+import com.badlogic.gdx.graphics.g2d.Sprite;
+import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.graphics.g2d.TextureAtlas;
+import com.badlogic.gdx.graphics.g2d.TextureRegion;
+import com.mathochist.mazegame.Main;
+import com.mathochist.mazegame.entity.MapEntity;
+import com.mathochist.mazegame.entity.Player;
+import com.mathochist.mazegame.render.RenderBuffer;
+import com.mathochist.mazegame.render.RenderObject;
+import com.mathochist.mazegame.userinterface.Hud;
+import com.mathochist.mazegame.userinterface.speechtext.SpeechType;
+import com.mathochist.mazegame.worlds.GameWorld;
+
+/**
+ * An NPC that detects if the player is within range and chases the player indefinitely.
+ *
+ * @author Hamza Ahmad Dean
+ */
+public class Dean extends MapEntity implements Inpc {
+
+  public static final float SPRITE_WIDTH = 32.0f;
+  public static final float SPRITE_HEIGHT = 52.0f;
+  public static final float DETECTION_RANGE = 1280f; // pixels
+  private static final float CHASE_SPEED = 300.0f; // pixels per second
+  public static final float CATCH_DISTANCE = 64f; // pixels
+  public static final float CATCH_PENALTY = 10;
+  private static final int FRAME_COLS = 3;
+  private static final int FRAME_ROWS = 4;
+  private static final int IDLE_FRAME_INDEX = 1;
+  private final Texture spriteSheet;
+  private final Animation&lt;TextureRegion&gt; walkUp;
+  private final Animation&lt;TextureRegion&gt; walkDown;
+  private final Animation&lt;TextureRegion&gt; walkLeft;
+  private final Animation&lt;TextureRegion&gt; walkRight;
+  private final TextureRegion idleUp;
+  private final TextureRegion idleDown;
+  private final TextureRegion idleLeft;
+  private final TextureRegion idleRight;
+  private final Sprite deanSprite;
+  private TextureRegion currentFrame;
+  private float currentX;
+  private float currentY;
+<span class="fc" id="L48">  private boolean isChasing = false;</span>
+<span class="fc" id="L49">  private float stateTime = 0f;</span>
+<span class="fc" id="L50">  private double timeSinceLastPenalty = 0;</span>
+<span class="fc" id="L51">  private boolean positionInitialised = false;</span>
+<span class="fc" id="L52">  private int direction = 0; // 0=down,1=left,2=right,3=up</span>
+
+  /**
+   * Create Dean.
+   *
+   * @param game Current Game instance
+   * @param batch SpriteBatch
+   * @param atlas Atlas containing dean
+   * @param tileX dean spawn X coord
+   * @param tileY dean spawn Y coord
+   * @param width dean width
+   * @param height dean height
+   * @param collidable is dean collidable
+   */
+  public Dean(
+      Main game,
+      SpriteBatch batch,
+      TextureAtlas atlas,
+      Integer tileX,
+      Integer tileY,
+      Integer width,
+      Integer height,
+      Boolean collidable) {
+<span class="fc" id="L75">    super(game, batch, atlas, &quot;dean&quot;, tileX, tileY, width, height, collidable);</span>
+
+    // Load Dean's sprite sheet
+<span class="fc" id="L78">    spriteSheet = new Texture(Gdx.files.internal(&quot;maps/library/Temp Dean animations.png&quot;));</span>
+<span class="fc" id="L79">    TextureRegion[][] tmp =</span>
+<span class="fc" id="L80">        TextureRegion.split(</span>
+<span class="fc" id="L81">            spriteSheet, spriteSheet.getWidth() / FRAME_COLS, spriteSheet.getHeight() / FRAME_ROWS);</span>
+
+    // Create animations for each direction
+<span class="fc" id="L84">    walkUp = new Animation&lt;&gt;(0.15f, tmp[3]);</span>
+<span class="fc" id="L85">    walkLeft = new Animation&lt;&gt;(0.15f, tmp[1]);</span>
+<span class="fc" id="L86">    walkDown = new Animation&lt;&gt;(0.15f, tmp[0]);</span>
+<span class="fc" id="L87">    walkRight = new Animation&lt;&gt;(0.15f, tmp[2]);</span>
+
+    // Start with first frame facing down
+<span class="fc" id="L90">    currentFrame = tmp[0][1];</span>
+
+<span class="fc" id="L92">    deanSprite = new Sprite(spriteSheet);</span>
+
+    // Initialise position based on tile coordinates
+<span class="fc" id="L95">    this.currentX = tileX * SPRITE_WIDTH;</span>
+<span class="fc" id="L96">    this.currentY = tileY * SPRITE_HEIGHT;</span>
+
+<span class="fc" id="L98">    idleUp = tmp[3][IDLE_FRAME_INDEX];</span>
+<span class="fc" id="L99">    idleDown = tmp[0][IDLE_FRAME_INDEX];</span>
+<span class="fc" id="L100">    idleLeft = tmp[1][IDLE_FRAME_INDEX];</span>
+<span class="fc" id="L101">    idleRight = tmp[2][IDLE_FRAME_INDEX];</span>
+<span class="fc" id="L102">  }</span>
+
+  /**
+   * Updates the NPC's position and chasing behavior. Called from GameWorld's update loop.
+   *
+   * @param delta the time since the last frame in seconds
+   * @param player the player entity
+   * @param world the game world containing collision and tile data
+   */
+  public void update(float delta, Player player, GameWorld world) {
+<span class="fc" id="L112">    stateTime += delta;</span>
+
+    // Initialise proper pixel position on first update when GameWorld is available
+<span class="fc bfc" id="L115" title="All 2 branches covered.">    if (!positionInitialised) {</span>
+<span class="fc" id="L116">      float[] startPos = world.getPixels((int) getTileX(), (int) getTileY());</span>
+<span class="fc" id="L117">      this.currentX = startPos[0];</span>
+<span class="fc" id="L118">      this.currentY = startPos[1];</span>
+<span class="fc" id="L119">      positionInitialised = true;</span>
+    }
+
+<span class="fc" id="L122">    float playerX = player.getX();</span>
+<span class="fc" id="L123">    float playerY = player.getY();</span>
+
+    // Calculate distance to player
+<span class="fc" id="L126">    float distanceX = playerX - currentX;</span>
+<span class="fc" id="L127">    float distanceY = playerY - currentY;</span>
+<span class="fc" id="L128">    double distance = Math.sqrt(distanceX * distanceX + distanceY * distanceY);</span>
+
+    // Check if player enters detection range
+<span class="fc bfc" id="L131" title="All 2 branches covered.">    isChasing = distance &lt;= DETECTION_RANGE;</span>
+
+    // Handle chase logic
+<span class="fc bfc" id="L134" title="All 2 branches covered.">    if (isChasing) {</span>
+
+      // Check if player has been caught
+<span class="fc bfc" id="L137" title="All 2 branches covered.">      if (distance &lt;= CATCH_DISTANCE) {</span>
+<span class="fc" id="L138">        onCatchPlayer(world);</span>
+<span class="fc" id="L139">        return;</span>
+      }
+
+      // Move toward player
+<span class="fc" id="L143">      float angle = (float) Math.atan2(playerY - currentY, playerX - currentX);</span>
+<span class="fc" id="L144">      float moveX = (float) Math.cos(angle) * CHASE_SPEED * delta;</span>
+<span class="fc" id="L145">      float moveY = (float) Math.sin(angle) * CHASE_SPEED * delta;</span>
+
+      // Check collision before moving
+<span class="fc" id="L148">      float newX = currentX + moveX;</span>
+<span class="fc" id="L149">      float newY = currentY + moveY;</span>
+
+<span class="fc" id="L151">      boolean[] collisionLayer = world.getCollisionLayer(newX, newY);</span>
+
+      // Collision check, stop if any collision detected
+<span class="fc" id="L154">      boolean canMove = true;</span>
+<span class="pc bpc" id="L155" title="1 of 4 branches missed.">      if (moveY &gt; 0 &amp;&amp; collisionLayer[0]) {</span>
+<span class="nc" id="L156">        canMove = false; // up</span>
+      }
+<span class="pc bpc" id="L158" title="3 of 4 branches missed.">      if (moveY &lt; 0 &amp;&amp; collisionLayer[1]) {</span>
+<span class="nc" id="L159">        canMove = false; // down</span>
+      }
+<span class="pc bpc" id="L161" title="1 of 4 branches missed.">      if (moveX &lt; 0 &amp;&amp; collisionLayer[2]) {</span>
+<span class="nc" id="L162">        canMove = false; // left</span>
+      }
+<span class="pc bpc" id="L164" title="3 of 4 branches missed.">      if (moveX &gt; 0 &amp;&amp; collisionLayer[3]) {</span>
+<span class="nc" id="L165">        canMove = false; // right</span>
+      }
+
+<span class="pc bpc" id="L168" title="1 of 2 branches missed.">      if (canMove) {</span>
+<span class="fc" id="L169">        currentX = newX;</span>
+<span class="fc" id="L170">        currentY = newY;</span>
+
+        // Update animation based on movement direction
+<span class="fc bfc" id="L173" title="All 2 branches covered.">        if (Math.abs(moveY) &gt; Math.abs(moveX)) {</span>
+          // Moving more vertically
+<span class="pc bpc" id="L175" title="1 of 2 branches missed.">          if (moveY &gt; 0) {</span>
+<span class="fc" id="L176">            currentFrame = walkUp.getKeyFrame(stateTime, true);</span>
+<span class="fc" id="L177">            direction = 3;</span>
+          } else {
+<span class="nc" id="L179">            currentFrame = walkDown.getKeyFrame(stateTime, true);</span>
+<span class="nc" id="L180">            direction = 0;</span>
+          }
+        } else {
+          // Moving more horizontally
+<span class="pc bpc" id="L184" title="1 of 2 branches missed.">          if (moveX &lt; 0) {</span>
+<span class="nc" id="L185">            currentFrame = walkLeft.getKeyFrame(stateTime, true);</span>
+<span class="nc" id="L186">            direction = 1;</span>
+          } else {
+<span class="fc" id="L188">            currentFrame = walkRight.getKeyFrame(stateTime, true);</span>
+<span class="fc" id="L189">            direction = 2;</span>
+          }
+        }
+      } else {
+        // Can't move, show idle frame
+<span class="nc" id="L194">        stateTime = 0;</span>
+<span class="nc bnc" id="L195" title="All 5 branches missed.">        switch (direction) {</span>
+<span class="nc" id="L196">          case 3 -&gt; currentFrame = idleUp;</span>
+<span class="nc" id="L197">          case 0 -&gt; currentFrame = idleDown;</span>
+<span class="nc" id="L198">          case 1 -&gt; currentFrame = idleLeft;</span>
+<span class="nc" id="L199">          case 2 -&gt; currentFrame = idleRight;</span>
+<span class="nc" id="L200">          default -&gt; throw new IllegalArgumentException(&quot;Unknown Enum value.&quot;);</span>
+        }
+      }
+<span class="fc" id="L203">    } else {</span>
+      // Show idle frame when not chasing
+<span class="fc" id="L205">      stateTime = 0;</span>
+<span class="pc bpc" id="L206" title="4 of 5 branches missed.">      switch (direction) {</span>
+<span class="nc" id="L207">        case 3 -&gt; currentFrame = idleUp;</span>
+<span class="nc" id="L208">        case 0 -&gt; currentFrame = idleDown;</span>
+<span class="nc" id="L209">        case 1 -&gt; currentFrame = idleLeft;</span>
+<span class="fc" id="L210">        case 2 -&gt; currentFrame = idleRight;</span>
+<span class="nc" id="L211">        default -&gt; throw new IllegalArgumentException(&quot;Unknown Enum value.&quot;);</span>
+      }
+    }
+
+    // Update sprite region
+<span class="fc" id="L216">    deanSprite.setRegion(currentFrame);</span>
+<span class="fc" id="L217">  }</span>
+
+  /**
+   * Called when Dean catches the player.
+   *
+   * @param world the game world containing collision and tile data
+   */
+  private void onCatchPlayer(GameWorld world) {
+<span class="fc" id="L225">    world</span>
+        .parentScreen
+<span class="fc" id="L227">        .getGameHud()</span>
+<span class="fc" id="L228">        .getSpeechBubbleManager()</span>
+<span class="fc" id="L229">        .removeBubblesOfType(SpeechType.NPC_SPEECH);</span>
+<span class="fc" id="L230">    world</span>
+        .parentScreen
+<span class="fc" id="L232">        .getGameHud()</span>
+<span class="fc" id="L233">        .getSpeechBubbleManager()</span>
+<span class="fc" id="L234">        .createSpeechBubble(SpeechType.NPC_SPEECH, &quot;Dean: GOT YOU!&quot;, 2000);</span>
+<span class="pc bpc" id="L235" title="3 of 4 branches missed.">    if (timeSinceLastPenalty == 0 || (System.currentTimeMillis() - timeSinceLastPenalty) &gt;= 1000) {</span>
+<span class="fc" id="L236">      game.getTimerManager().addPenalty(CATCH_PENALTY);</span>
+<span class="fc" id="L237">      timeSinceLastPenalty = System.currentTimeMillis();</span>
+    }
+<span class="fc" id="L239">    game.getEventsCounter().deanCatchEvent();</span>
+<span class="fc" id="L240">  }</span>
+
+  @Override
+  public void render(GameWorld world, RenderBuffer buffer) {
+    // Use current pixel position
+<span class="fc" id="L245">    deanSprite.setPosition((int) currentX, (int) currentY);</span>
+
+    // Calculate render layer based on Y position
+<span class="fc" id="L248">    float[] tilePos = world.pixelCoordsToTileIndex(currentX, currentY);</span>
+<span class="fc" id="L249">    int renderLayer = (int) Math.ceil(tilePos[1]); // Layer based on Y position</span>
+
+<span class="fc" id="L251">    buffer.addToBuffer(new RenderObject(deanSprite, super.getBatch(), renderLayer));</span>
+<span class="fc" id="L252">  }</span>
+
+  @Override
+<span class="nc" id="L255">  public void renderPrompt(GameWorld world) {}</span>
+
+  @Override
+<span class="nc" id="L258">  public void renderSpeech(String text, GameWorld world) {}</span>
+
+  @Override
+  public boolean onInteract(Player p, GameWorld world, Hud worldHud) {
+<span class="nc" id="L262">    return true;</span>
+  }
+
+  @Override
+<span class="nc" id="L266">  public void onInteractEnd(Player p, GameWorld world) {}</span>
+
+  @Override
+  public boolean onCollision(GameWorld world) {
+<span class="nc" id="L270">    return true; // Handle collision</span>
+  }
+
+  /** dispose Used assets. */
+  public void dispose() {
+<span class="nc" id="L275">    spriteSheet.dispose();</span>
+<span class="nc" id="L276">  }</span>
+
+  public boolean isChasing() {
+<span class="fc" id="L279">    return isChasing;</span>
+  }
+
+  public float getCurrentX() {
+<span class="fc" id="L283">    return currentX;</span>
+  }
+
+  public float getCurrentY() {
+<span class="fc" id="L287">    return currentY;</span>
+  }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.13.202504020838</span></div></body></html>

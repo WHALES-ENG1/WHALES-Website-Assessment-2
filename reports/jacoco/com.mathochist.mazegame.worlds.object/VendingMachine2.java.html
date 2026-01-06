@@ -1,0 +1,102 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>VendingMachine2.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">headless</a> &gt; <a href="index.source.html" class="el_package">com.mathochist.mazegame.worlds.object</a> &gt; <span class="el_source">VendingMachine2.java</span></div><h1>VendingMachine2.java</h1><pre class="source lang-java linenums">package com.mathochist.mazegame.worlds.object;
+
+import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.graphics.g2d.TextureAtlas;
+import com.mathochist.mazegame.Main;
+import com.mathochist.mazegame.entity.MapEntity;
+import com.mathochist.mazegame.entity.Player;
+import com.mathochist.mazegame.entity.playerinventory.InventoryObject;
+import com.mathochist.mazegame.screen.roomscreen.RoomScreen;
+import com.mathochist.mazegame.userinterface.Hud;
+import com.mathochist.mazegame.userinterface.speechtext.SpeechType;
+import com.mathochist.mazegame.worlds.GameWorld;
+
+/** Creates a Vending Machine that causes the player to be slow. */
+public class VendingMachine2 extends MapEntity {
+  private static final long INTERACTION_COOLDOWN_MS = 2000;
+  private boolean used;
+<span class="fc" id="L18">  private long lastInteractionTime = 0;</span>
+
+  /**
+   * Creates vending machine object using Entity. Also sets Vending Machine 2 as used if player
+   * already has the Chamomile tea.
+   *
+   * @param game The instance of the game.
+   * @param batch The current SpritBatch.
+   * @param atlas Which Atlas object is in.
+   * @param tileX X Coord to place at.
+   * @param tileY Y Coord to place at.
+   * @param width Width of object.
+   * @param height Height of object.
+   * @param collidable Is object collidable.
+   */
+  public VendingMachine2(
+      Main game,
+      SpriteBatch batch,
+      TextureAtlas atlas,
+      Integer tileX,
+      Integer tileY,
+      Integer width,
+      Integer height,
+      Boolean collidable) {
+<span class="fc" id="L42">    super(</span>
+        game,
+        batch,
+        atlas,
+        &quot;vending_machine2&quot;,
+<span class="fc" id="L47">        tileX,</span>
+<span class="fc" id="L48">        tileY,</span>
+<span class="fc" id="L49">        width,</span>
+<span class="fc" id="L50">        height,</span>
+<span class="fc" id="L51">        collidable); // TODO: change to Vending Machine 2</span>
+
+<span class="fc" id="L53">    used =</span>
+<span class="fc" id="L54">        game.getPlayerInventory()</span>
+<span class="fc" id="L55">            .hasItem(</span>
+                InventoryObject.CHAMOMILE_TEA); // If player already has Chamomile tea, mark as used
+<span class="fc" id="L57">  }</span>
+
+  @Override
+  public boolean onInteract(Player p, GameWorld world, Hud worldHud) {
+<span class="fc bfc" id="L61" title="All 2 branches covered.">    if (RoomScreen.powerOutage) {</span>
+<span class="fc" id="L62">      worldHud.getSpeechBubbleManager().removeBubblesOfType(SpeechType.NPC_SPEECH);</span>
+<span class="fc" id="L63">      worldHud</span>
+<span class="fc" id="L64">          .getSpeechBubbleManager()</span>
+<span class="fc" id="L65">          .createSpeechBubble(</span>
+              SpeechType.NPC_SPEECH, &quot;Vending Machine doesn't work during a power outage&quot;, 2000);
+<span class="fc" id="L67">      return true;</span>
+    }
+<span class="fc" id="L69">    long currentTime = System.currentTimeMillis();</span>
+<span class="pc bpc" id="L70" title="1 of 2 branches missed.">    if (currentTime - lastInteractionTime &lt; INTERACTION_COOLDOWN_MS) {</span>
+<span class="nc" id="L71">      return true;</span>
+    }
+<span class="fc" id="L73">    lastInteractionTime = currentTime;</span>
+<span class="pc bpc" id="L74" title="1 of 2 branches missed.">    if (used) {</span>
+<span class="nc" id="L75">      worldHud.getSpeechBubbleManager().removeBubblesOfType(SpeechType.NPC_SPEECH);</span>
+<span class="nc" id="L76">      worldHud</span>
+<span class="nc" id="L77">          .getSpeechBubbleManager()</span>
+<span class="nc" id="L78">          .createSpeechBubble(SpeechType.NPC_SPEECH, &quot;The vending machine is empty.&quot;, 2000);</span>
+<span class="nc" id="L79">      return true;</span>
+    }
+<span class="fc" id="L81">    used = true;</span>
+<span class="fc" id="L82">    super.game.getPlayerInventory().addItem(InventoryObject.CHAMOMILE_TEA);</span>
+<span class="fc" id="L83">    worldHud.getSpeechBubbleManager().removeBubblesOfType(SpeechType.NPC_SPEECH);</span>
+<span class="fc" id="L84">    worldHud</span>
+<span class="fc" id="L85">        .getSpeechBubbleManager()</span>
+<span class="fc" id="L86">        .createSpeechBubble(</span>
+            SpeechType.NPC_SPEECH,
+            &quot;You got a Chamomile Tea, You are suddenly feeling tired!&quot;,
+            2000);
+<span class="fc" id="L90">    super.game.getEventsCounter().vendingMachineTeaEvent();</span>
+<span class="fc" id="L91">    return true;</span>
+  }
+
+  @Override
+<span class="nc" id="L95">  public void onInteractEnd(Player p, GameWorld world) {} // No action needed on interaction end</span>
+
+  @Override
+  public boolean onCollision(GameWorld world) {
+<span class="nc" id="L99">    return false; // no collision behavior</span>
+  }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.13.202504020838</span></div></body></html>

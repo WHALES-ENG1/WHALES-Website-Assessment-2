@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>CoffeeSpill.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">headless</a> &gt; <a href="index.source.html" class="el_package">com.mathochist.mazegame.worlds.object</a> &gt; <span class="el_source">CoffeeSpill.java</span></div><h1>CoffeeSpill.java</h1><pre class="source lang-java linenums">package com.mathochist.mazegame.worlds.object;
+
+import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.graphics.g2d.TextureAtlas;
+import com.mathochist.mazegame.Main;
+import com.mathochist.mazegame.entity.MapEntity;
+import com.mathochist.mazegame.entity.Player;
+import com.mathochist.mazegame.screen.roomscreen.RoomScreen;
+import com.mathochist.mazegame.userinterface.Hud;
+import com.mathochist.mazegame.worlds.GameWorld;
+
+/** Coffee spill object that makes the player slip and unable to move for a few seconds. */
+public class CoffeeSpill extends MapEntity {
+
+  /**
+   * Creates the CoffeeSpill object using Entity.
+   *
+   * @param game The instance of the game.
+   * @param batch The current SpritBatch.
+   * @param atlas Which Atlas object is in.
+   * @param tileX X Coord to place at.
+   * @param tileY Y Coord to place at.
+   * @param width Width of object.
+   * @param height Height of object.
+   * @param collidable Is object collidable.
+   */
+  public CoffeeSpill(
+      Main game,
+      SpriteBatch batch,
+      TextureAtlas atlas,
+      Integer tileX,
+      Integer tileY,
+      Integer width,
+      Integer height,
+      Boolean collidable) {
+<span class="fc" id="L36">    super(game, batch, atlas, &quot;coffee_spill&quot;, tileX, tileY, width, height, collidable);</span>
+<span class="fc" id="L37">  }</span>
+
+  @Override
+  public boolean onInteract(Player p, GameWorld world, Hud worldHud) {
+<span class="nc" id="L41">    return false;</span>
+  }
+
+  @Override
+<span class="nc" id="L45">  public void onInteractEnd(Player p, GameWorld world) {}</span>
+
+  @Override
+  public boolean onCollision(GameWorld world) {
+    // Make player slip
+<span class="fc" id="L50">    ((RoomScreen) super.game.getScreen()).getPlayer().slip();</span>
+<span class="fc" id="L51">    return false;</span>
+  }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.13.202504020838</span></div></body></html>

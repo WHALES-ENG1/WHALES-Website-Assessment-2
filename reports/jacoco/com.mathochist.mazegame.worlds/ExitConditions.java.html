@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>ExitConditions.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">headless</a> &gt; <a href="index.source.html" class="el_package">com.mathochist.mazegame.worlds</a> &gt; <span class="el_source">ExitConditions.java</span></div><h1>ExitConditions.java</h1><pre class="source lang-java linenums">package com.mathochist.mazegame.worlds;
+
+import com.mathochist.mazegame.entity.playerinventory.Inventory;
+import com.mathochist.mazegame.entity.playerinventory.InventoryObject;
+
+/**
+ * Represents the conditions required to exit a level or area in the game.
+ *
+ * @param requiredItems An array of item identifiers that the player must possess to exit.
+ * @param questCompletions An array of quest identifiers that must be completed to exit.
+ * @param npcInteractions An array of NPC identifiers that the player must have interacted with to
+ *     exit.
+ * @param minTimeSeconds The minimum time in seconds that must have elapsed before exiting is
+ *     allowed.
+ */
+<span class="fc" id="L16">public record ExitConditions(</span>
+    String[] requiredItems,
+    String[] questCompletions,
+    String[] npcInteractions,
+    int minTimeSeconds) {
+  // TODO: NPC and quest identifiers have not been implemented yet
+
+  /**
+   * Checks if the player has the required items needed to exit.
+   *
+   * @param playerInventory The Player's current inventory.
+   * @return bool true or false, does player have the item.
+   */
+  public boolean hasRequiredItems(Inventory playerInventory) {
+<span class="fc bfc" id="L30" title="All 2 branches covered.">    for (String item : requiredItems) {</span>
+<span class="fc" id="L31">      InventoryObject object = InventoryObject.fromString(item);</span>
+<span class="pc bpc" id="L32" title="1 of 2 branches missed.">      if (object == null) {</span>
+<span class="nc" id="L33">        throw new IllegalArgumentException(&quot;Invalid inventory item in exit conditions: &quot; + item);</span>
+      }
+<span class="fc bfc" id="L35" title="All 2 branches covered.">      if (!playerInventory.hasItem(object)) {</span>
+<span class="fc" id="L36">        return false;</span>
+      }
+    }
+<span class="fc" id="L39">    return true;</span>
+  }
+
+  /**
+   * What items is the player missing.
+   *
+   * @param playerInventory Player's Current Inventory
+   * @return returns the missing required items.
+   */
+  public String[] getMissingItems(Inventory playerInventory) {
+<span class="fc" id="L49">    return java.util.Arrays.stream(requiredItems)</span>
+<span class="fc" id="L50">        .filter(</span>
+            item -&gt; {
+<span class="fc" id="L52">              InventoryObject object = InventoryObject.fromString(item);</span>
+<span class="pc bpc" id="L53" title="2 of 4 branches missed.">              return object != null &amp;&amp; !playerInventory.hasItem(object);</span>
+            })
+<span class="fc" id="L55">        .toArray(String[]::new);</span>
+  }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.13.202504020838</span></div></body></html>

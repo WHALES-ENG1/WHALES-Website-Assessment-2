@@ -1,0 +1,183 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>Hud.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">headless</a> &gt; <a href="index.source.html" class="el_package">com.mathochist.mazegame.userinterface</a> &gt; <span class="el_source">Hud.java</span></div><h1>Hud.java</h1><pre class="source lang-java linenums">package com.mathochist.mazegame.userinterface;
+
+import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.graphics.OrthographicCamera;
+import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.graphics.g2d.BitmapFont;
+import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.graphics.g2d.TextureAtlas;
+import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
+import com.badlogic.gdx.utils.viewport.FitViewport;
+import com.badlogic.gdx.utils.viewport.Viewport;
+import com.mathochist.mazegame.Main;
+import com.mathochist.mazegame.userinterface.speechtext.SpeechBubbleManager;
+
+/** Displays the HUD of the game over the screens. */
+public class Hud {
+
+  private static final float GAME_WIDTH = 1280;
+  private static final float GAME_HEIGHT = 720;
+  private final Main game;
+  private final OrthographicCamera hudCamera;
+  private final Viewport viewport;
+  private final SpriteBatch hudBatch;
+  private final BitmapFont smallFont;
+  private final BitmapFont mainFont;
+  private final BitmapFont vlargeFont;
+  private final TextureAtlas gameUiAtlas;
+  private final SpeechBubbleManager speechBubbleManager;
+
+  /**
+   * Displays using the games spriteBatch and sets the variables needed to display HUD.
+   *
+   * @param game current instance of game.
+   */
+<span class="fc" id="L35">  public Hud(Main game) {</span>
+<span class="fc" id="L36">    this.game = game;</span>
+<span class="fc" id="L37">    this.hudBatch = game.getSpriteBatch();</span>
+<span class="fc" id="L38">    hudCamera = new OrthographicCamera();</span>
+<span class="fc" id="L39">    viewport = new FitViewport(GAME_WIDTH, GAME_HEIGHT, hudCamera);</span>
+<span class="fc" id="L40">    hudCamera.position.set(GAME_WIDTH / 2.0f, GAME_HEIGHT / 2.0f, 0f);</span>
+<span class="fc" id="L41">    hudCamera.update();</span>
+
+<span class="fc" id="L43">    smallFont =</span>
+        new BitmapFont(
+<span class="fc" id="L45">            Gdx.files.internal(&quot;fonts/game_font.fnt&quot;),</span>
+<span class="fc" id="L46">            Gdx.files.internal(&quot;fonts/game_font.png&quot;),</span>
+            false);
+<span class="fc" id="L48">    smallFont.getData().setScale(0.5f);</span>
+
+<span class="fc" id="L50">    mainFont =</span>
+        new BitmapFont(
+<span class="fc" id="L52">            Gdx.files.internal(&quot;fonts/game_font.fnt&quot;),</span>
+<span class="fc" id="L53">            Gdx.files.internal(&quot;fonts/game_font.png&quot;),</span>
+            false);
+<span class="fc" id="L55">    mainFont.getData().setScale(1.0f);</span>
+
+<span class="fc" id="L57">    vlargeFont = new BitmapFont(Gdx.files.internal(&quot;fonts/vlarge_game_font.fnt&quot;));</span>
+
+<span class="fc" id="L59">    gameUiAtlas = new TextureAtlas(Gdx.files.internal(&quot;game_ui/game_ui.atlas&quot;));</span>
+
+<span class="fc" id="L61">    speechBubbleManager = new SpeechBubbleManager(this);</span>
+<span class="fc" id="L62">  }</span>
+
+  public SpriteBatch getHudBatch() {
+<span class="fc" id="L65">    return hudBatch;</span>
+  }
+
+  public OrthographicCamera getHudCamera() {
+<span class="fc" id="L69">    return hudCamera;</span>
+  }
+
+  public TextureAtlas getGameUiAtlas() {
+<span class="fc" id="L73">    return gameUiAtlas;</span>
+  }
+
+  public BitmapFont getSmallFont() {
+<span class="nc" id="L77">    return smallFont;</span>
+  }
+
+  public BitmapFont getMainFont() {
+<span class="fc" id="L81">    return mainFont;</span>
+  }
+
+  public BitmapFont getVlargeFont() {
+<span class="nc" id="L85">    return vlargeFont;</span>
+  }
+
+  public ShapeRenderer getShapeRenderer() {
+<span class="nc" id="L89">    return game.getShapeRenderer();</span>
+  }
+
+  /** disposes assets not in use. */
+  public void dispose() {
+<span class="fc" id="L94">    smallFont.dispose();</span>
+<span class="fc" id="L95">    mainFont.dispose();</span>
+<span class="fc" id="L96">    vlargeFont.dispose();</span>
+<span class="fc" id="L97">    gameUiAtlas.dispose();</span>
+<span class="fc" id="L98">    speechBubbleManager.dispose();</span>
+<span class="fc" id="L99">  }</span>
+
+  /**
+   * Render HUD.
+   */
+  public void render() {
+<span class="fc" id="L105">    viewport.apply();</span>
+<span class="fc" id="L106">    hudBatch.setProjectionMatrix(viewport.getCamera().combined);</span>
+<span class="fc" id="L107">    hudBatch.begin();</span>
+
+    // draw fps in top left corner
+<span class="fc" id="L110">    smallFont.draw(</span>
+<span class="fc" id="L111">        hudBatch, &quot;FPS: &quot; + Gdx.graphics.getFramesPerSecond(), 2, hudCamera.viewportHeight - 2);</span>
+
+    // draw Pause instruction in top left corner
+<span class="fc" id="L114">    hudBatch.draw(</span>
+        new Texture(&quot;maps/spare_assets_raw/keys/P.png&quot;),
+        2f,
+        hudCamera.viewportHeight - 50,
+        34f,
+        32f);
+<span class="fc" id="L120">    smallFont.draw(hudBatch, &quot; -Pause&quot;, 35, hudCamera.viewportHeight - 30);</span>
+    // draw Achievement instruction
+<span class="fc" id="L122">    hudBatch.draw(</span>
+        new Texture(&quot;maps/spare_assets_raw/keys/TAB.png&quot;),
+        2f,
+        hudCamera.viewportHeight - 80,
+        60f,
+        32f);
+<span class="fc" id="L128">    smallFont.draw(hudBatch, &quot; -Achievements&quot;, 60, hudCamera.viewportHeight - 60);</span>
+    // draw Interact instruction
+<span class="fc" id="L130">    hudBatch.draw(</span>
+        new Texture(&quot;maps/spare_assets_raw/keys/E.png&quot;),
+        2f,
+        hudCamera.viewportHeight - 110,
+        34f,
+        32f);
+<span class="fc" id="L136">    smallFont.draw(hudBatch, &quot; -Interact&quot;, 35, hudCamera.viewportHeight - 90);</span>
+    // draw Sprint instruction
+<span class="fc" id="L138">    hudBatch.draw(</span>
+        new Texture(&quot;maps/spare_assets_raw/keys/SHIFT.png&quot;),
+        2f,
+        hudCamera.viewportHeight - 140,
+        60f,
+        32f);
+<span class="fc" id="L144">    smallFont.draw(hudBatch, &quot; -Sprint&quot;, 60, hudCamera.viewportHeight - 120);</span>
+    // draw time elapsed in top right corner
+<span class="fc" id="L146">    game.getTimerManager().renderToHud(mainFont, hudBatch, hudCamera);</span>
+<span class="fc" id="L147">    game.getScoreCounter().renderToHud(mainFont, hudBatch, hudCamera);</span>
+<span class="fc" id="L148">    game.getPlayerInventory().render(hudBatch, gameUiAtlas);</span>
+<span class="fc" id="L149">    game.getEventsCounter().renderEventsCounterToHud(hudBatch, hudCamera, smallFont);</span>
+
+<span class="fc" id="L151">    speechBubbleManager.render();</span>
+<span class="fc" id="L152">    hudBatch.end();</span>
+<span class="fc" id="L153">  }</span>
+
+  public SpeechBubbleManager getSpeechBubbleManager() {
+<span class="fc" id="L156">    return speechBubbleManager;</span>
+  }
+
+  /** renders pause overlay. */
+  public void renderPauseScreen() {
+<span class="nc" id="L161">    viewport.apply();</span>
+<span class="nc" id="L162">    hudBatch.setProjectionMatrix(viewport.getCamera().combined);</span>
+<span class="nc" id="L163">    hudBatch.begin();</span>
+
+<span class="nc" id="L165">    float centerX = GAME_WIDTH / 2.0f;</span>
+<span class="nc" id="L166">    float centerY = GAME_HEIGHT / 2.0f;</span>
+
+<span class="nc" id="L168">    vlargeFont.draw(hudBatch, &quot;Game Paused&quot;, centerX - 350, centerY + 100);</span>
+<span class="nc" id="L169">    mainFont.draw(hudBatch, &quot;Press ESC or P to Resume&quot;, centerX - 150, centerY - 10);</span>
+<span class="nc" id="L170">    hudBatch.end();</span>
+<span class="nc" id="L171">  }</span>
+
+  /**
+   * Resizes HUD when called.
+   *
+   * @param width New width.
+   * @param height New height.
+   */
+  public void resize(int width, int height) {
+<span class="fc" id="L180">    viewport.update(width, height, true);</span>
+<span class="fc" id="L181">  }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.13.202504020838</span></div></body></html>

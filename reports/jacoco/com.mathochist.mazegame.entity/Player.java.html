@@ -1,0 +1,310 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>Player.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">headless</a> &gt; <a href="index.source.html" class="el_package">com.mathochist.mazegame.entity</a> &gt; <span class="el_source">Player.java</span></div><h1>Player.java</h1><pre class="source lang-java linenums">package com.mathochist.mazegame.entity;
+
+import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.graphics.OrthographicCamera;
+import com.badlogic.gdx.graphics.g2d.Animation;
+import com.badlogic.gdx.graphics.g2d.Sprite;
+import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.graphics.g2d.TextureAtlas;
+import com.badlogic.gdx.graphics.g2d.TextureRegion;
+import com.mathochist.mazegame.Main;
+import com.mathochist.mazegame.entity.playerinventory.InventoryObject;
+import com.mathochist.mazegame.keymovement.Direction;
+import com.mathochist.mazegame.keymovement.KeyBinds;
+import com.mathochist.mazegame.keymovement.KeyBuffer;
+import com.mathochist.mazegame.render.RenderBuffer;
+import com.mathochist.mazegame.render.RenderObject;
+import com.mathochist.mazegame.worlds.GameWorld;
+
+/** Player entity controlled by user input. Handles movement, animation, and interaction. */
+// TODO: Refactor to extend Entity class
+public class Player {
+
+  public static final float MOVE_SPEED = 300; // pixels per second
+  public static final float SPRITE_WIDTH = 19;
+  public static final float SPRITE_HEIGHT = 25;
+  public static final float INTERACTION_RANGE = 2; // tiles
+
+  /** Delay between static animation ending and control being returned to the player in seconds. */
+  private static final float STATIC_ANIMATION_END_DELAY = 1.5f;
+
+  /**
+   * Delay between control being returned to player after static animation and another static
+   * animation being able to be triggered.
+   */
+  private static final float STATIC_ANIMATION_IMMUNITY_TIME = 1.5f;
+
+  private final Animation&lt;TextureRegion&gt; walkUp;
+  private final Animation&lt;TextureRegion&gt; walkDown;
+  private final Animation&lt;TextureRegion&gt; walkLeft;
+  private final Animation&lt;TextureRegion&gt; walkRight;
+  private final Animation&lt;TextureRegion&gt; fall;
+  private final Sprite playerSprite;
+  private final SpriteBatch screenBatch;
+  private final KeyBuffer keyBuffer;
+  private final OrthographicCamera camera;
+  private final GameWorld world;
+  private final Main game;
+  private final TextureAtlas spriteSheet;
+  private TextureRegion currentFrame;
+<span class="fc" id="L50">  private float stateTime = 0f; // time tracker for walking animations</span>
+<span class="fc" id="L51">  private Direction direction = Direction.down;</span>
+<span class="fc" id="L52">  private float staticStateTime = 0f; // time tracker for static animations</span>
+  private float xcoord;
+  private float ycoord;
+<span class="fc" id="L55">  private boolean isSprinting = false;</span>
+
+  /** Represents whether the player is currently performing an animation that blocks movement. */
+<span class="fc" id="L58">  private Animation&lt;TextureRegion&gt; currentStaticAnimation = null;</span>
+
+  /** Time left until static animations can be triggered again. */
+<span class="fc" id="L61">  private float staticAnimationImmunityTimer = 0;</span>
+
+  /**
+   * Create the player.
+   *
+   * @param game current game instance
+   * @param camera current camera
+   * @param batch SpriteBatch
+   * @param world Roon
+   * @param startX Spawn X coord
+   * @param startY Spawn Y coord
+   */
+  public Player(
+      Main game,
+      OrthographicCamera camera,
+      SpriteBatch batch,
+      GameWorld world,
+      float startX,
+<span class="fc" id="L79">      float startY) {</span>
+
+<span class="fc" id="L81">    this.game = game;</span>
+<span class="fc" id="L82">    this.camera = camera;</span>
+<span class="fc" id="L83">    this.screenBatch = batch;</span>
+<span class="fc" id="L84">    this.world = world;</span>
+
+    // CHANGED: Using a texture atlas instead of constructing finicky and unexpandable arrays of
+    // textures.
+    // Load the sprite sheet as an atlas.
+<span class="fc" id="L89">    spriteSheet = new TextureAtlas(Gdx.files.internal(&quot;player.atlas&quot;));</span>
+
+    // Create animations for each direction
+<span class="fc" id="L92">    walkUp = new Animation&lt;&gt;(0.15f, spriteSheet.findRegions(&quot;walk_up&quot;));</span>
+<span class="fc" id="L93">    walkLeft = new Animation&lt;&gt;(0.15f, spriteSheet.findRegions(&quot;walk_left&quot;));</span>
+<span class="fc" id="L94">    walkDown = new Animation&lt;&gt;(0.15f, spriteSheet.findRegions(&quot;walk_down&quot;));</span>
+<span class="fc" id="L95">    walkRight = new Animation&lt;&gt;(0.15f, spriteSheet.findRegions(&quot;walk_right&quot;));</span>
+<span class="fc" id="L96">    fall = new Animation&lt;&gt;(0.1f, spriteSheet.findRegions(&quot;fall&quot;));</span>
+    // Start with first frame facing down
+<span class="fc" id="L98">    currentFrame = walkDown.getKeyFrames()[0];</span>
+
+    // Center player on screen
+<span class="fc" id="L101">    xcoord = startX;</span>
+<span class="fc" id="L102">    ycoord = startY;</span>
+
+<span class="fc" id="L104">    playerSprite = new Sprite(currentFrame);</span>
+    // CHANGED: Fixed player scaling issues. Player is no longer horizontally squished
+<span class="fc" id="L106">    playerSprite.setScale(3.5f);</span>
+<span class="fc" id="L107">    keyBuffer = new KeyBuffer();</span>
+<span class="fc" id="L108">  }</span>
+
+  /**
+   * Called Every frame to update player movement and interaction.
+   *
+   * @param gameDelta delta
+   * @param renderBuffer Renderbuffer
+   */
+  public void update(float gameDelta, RenderBuffer renderBuffer) {
+    // If a static animation is running, don't let player update.
+<span class="pc bpc" id="L118" title="1 of 2 branches missed.">    if (currentStaticAnimation != null) {</span>
+<span class="nc" id="L119">      updateStaticAnimation(gameDelta);</span>
+    } else {
+      // Update static animation immunity timer
+<span class="fc" id="L122">      staticAnimationImmunityTimer = Math.max(staticAnimationImmunityTimer - gameDelta, 0);</span>
+
+<span class="fc" id="L124">      keyBuffer.updateCameraMovementFromKeys();</span>
+
+<span class="fc" id="L126">      float moveSpeed = getMovementSpeed();</span>
+
+<span class="fc" id="L128">      float[] move = keyBuffer.getCameraMove();</span>
+<span class="fc" id="L129">      float deltaTime = Gdx.graphics.getDeltaTime();</span>
+      // Calculate new position and basic collision detection
+<span class="fc" id="L131">      float deltaX = move[0] * deltaTime * moveSpeed;</span>
+<span class="fc" id="L132">      float deltaY = move[1] * deltaTime * moveSpeed;</span>
+
+      // Use player's position for collision, not camera
+<span class="fc" id="L135">      boolean[] collisionLayer =</span>
+<span class="fc" id="L136">          world.getCollisionLayer(</span>
+<span class="fc" id="L137">              xcoord - currentFrame.getRegionWidth(), ycoord - currentFrame.getRegionHeight());</span>
+<span class="pc bpc" id="L138" title="3 of 4 branches missed.">      if (deltaY &gt; 0 &amp;&amp; collisionLayer[0]) { // moving up</span>
+<span class="nc" id="L139">        deltaY = 0;</span>
+      }
+<span class="pc bpc" id="L141" title="3 of 4 branches missed.">      if (deltaY &lt; 0 &amp;&amp; collisionLayer[1]) { // moving down</span>
+<span class="nc" id="L142">        deltaY = 0;</span>
+      }
+<span class="pc bpc" id="L144" title="3 of 4 branches missed.">      if (deltaX &lt; 0 &amp;&amp; collisionLayer[2]) { // moving left</span>
+<span class="nc" id="L145">        deltaX = 0;</span>
+      }
+<span class="pc bpc" id="L147" title="3 of 4 branches missed.">      if (deltaX &gt; 0 &amp;&amp; collisionLayer[3]) { // moving right</span>
+<span class="nc" id="L148">        deltaX = 0;</span>
+      }
+
+<span class="pc bpc" id="L151" title="2 of 4 branches missed.">      if (move[0] != 0 || move[1] != 0) {</span>
+<span class="nc" id="L152">        camera.translate(deltaX, deltaY); // translate camera not player</span>
+<span class="nc" id="L153">        camera.update();</span>
+<span class="nc" id="L154">        stateTime += gameDelta;</span>
+        // Choose correct frame
+<span class="nc bnc" id="L156" title="All 2 branches missed.">        if (move[1] &gt; 0) {</span>
+<span class="nc" id="L157">          currentFrame = walkUp.getKeyFrame(stateTime, true);</span>
+<span class="nc" id="L158">          direction = Direction.up;</span>
+<span class="nc bnc" id="L159" title="All 2 branches missed.">        } else if (move[0] &lt; 0) {</span>
+<span class="nc" id="L160">          currentFrame = walkLeft.getKeyFrame(stateTime, true);</span>
+<span class="nc" id="L161">          direction = Direction.left;</span>
+<span class="nc bnc" id="L162" title="All 2 branches missed.">        } else if (move[0] &gt; 0) {</span>
+<span class="nc" id="L163">          currentFrame = walkRight.getKeyFrame(stateTime, true);</span>
+<span class="nc" id="L164">          direction = Direction.right;</span>
+<span class="nc bnc" id="L165" title="All 2 branches missed.">        } else if (move[1] &lt; 0) {</span>
+<span class="nc" id="L166">          currentFrame = walkDown.getKeyFrame(stateTime, true);</span>
+<span class="nc" id="L167">          direction = Direction.down;</span>
+        }
+      } else {
+<span class="fc" id="L170">        stateTime = 2; // reset to idle frame</span>
+<span class="pc bpc" id="L171" title="4 of 5 branches missed.">        switch (direction) {</span>
+<span class="nc" id="L172">          case up -&gt; currentFrame = walkUp.getKeyFrame(stateTime, true);</span>
+<span class="fc" id="L173">          case down -&gt; currentFrame = walkDown.getKeyFrame(stateTime, true);</span>
+<span class="nc" id="L174">          case left -&gt; currentFrame = walkLeft.getKeyFrame(stateTime, true);</span>
+<span class="nc" id="L175">          case right -&gt; currentFrame = walkRight.getKeyFrame(stateTime, true);</span>
+<span class="nc" id="L176">          default -&gt; throw new IllegalArgumentException(&quot;Unknown Enum value.&quot;);</span>
+        }
+      }
+    }
+
+<span class="fc" id="L181">    playerSprite.setRegion(currentFrame);</span>
+<span class="fc" id="L182">    playerSprite.setSize(currentFrame.getRegionWidth(), currentFrame.getRegionHeight());</span>
+<span class="fc" id="L183">    keyBuffer.clear();</span>
+
+    // Update player position based on camera
+<span class="fc" id="L186">    this.xcoord = camera.position.x - (currentFrame.getRegionWidth() / 2f);</span>
+<span class="fc" id="L187">    this.ycoord = camera.position.y - (currentFrame.getRegionHeight() / 2f);</span>
+
+<span class="fc" id="L189">    this.render(renderBuffer);</span>
+<span class="fc" id="L190">  }</span>
+
+  /**
+   * Called every frame while a static animation is running.
+   *
+   * @param gameDelta delta
+   */
+  private void updateStaticAnimation(float gameDelta) {
+<span class="nc" id="L198">    staticStateTime += gameDelta;</span>
+<span class="nc" id="L199">    currentFrame = currentStaticAnimation.getKeyFrame(staticStateTime);</span>
+<span class="nc bnc" id="L200" title="All 2 branches missed.">    if (currentStaticAnimation.isAnimationFinished(staticStateTime - STATIC_ANIMATION_END_DELAY)) {</span>
+<span class="nc" id="L201">      currentStaticAnimation = null;</span>
+<span class="nc" id="L202">      staticAnimationImmunityTimer = STATIC_ANIMATION_IMMUNITY_TIME;</span>
+    }
+<span class="nc" id="L204">  }</span>
+
+  /**
+   * Force the player into a slipping animation, preventing movement while the animation runs and
+   * some time after.
+   */
+  public void slip() {
+<span class="pc bpc" id="L211" title="2 of 4 branches missed.">    if (staticAnimationImmunityTimer &gt; 0 || currentStaticAnimation != null) {</span>
+<span class="nc" id="L212">      return;</span>
+    }
+<span class="fc" id="L214">    staticStateTime = 0;</span>
+<span class="fc" id="L215">    currentStaticAnimation = fall;</span>
+<span class="fc" id="L216">    game.getEventsCounter().slipOnCoffeeEvent();</span>
+<span class="fc" id="L217">  }</span>
+
+  /**
+   * Calculate the current movement speed of the player, based on items in inventory and sprint
+   * status.
+   *
+   * @return A double representing the current movement speed of the player in pixels/second.
+   */
+  public float getMovementSpeed() {
+    // base move speed buffer
+<span class="fc" id="L227">    int moveSpeed = (int) MOVE_SPEED;</span>
+
+    // check extra keys
+<span class="fc bfc" id="L230" title="All 2 branches covered.">    if (keyBuffer.isKeyPressed(KeyBinds.SPRINT)) {</span>
+      // sprinting logic
+<span class="fc" id="L232">      moveSpeed += 300;</span>
+<span class="fc" id="L233">      isSprinting = true;</span>
+<span class="fc" id="L234">      game.getAchievementHandler().playerSprinted();</span>
+    } else {
+<span class="fc" id="L236">      isSprinting = false;</span>
+    }
+<span class="pc bpc" id="L238" title="1 of 2 branches missed.">    if (keyBuffer.isKeyPressed(KeyBinds.INTERACT)) {</span>
+      // interaction logic
+<span class="nc" id="L240">      world.triggerInteractionByPixel(xcoord, ycoord, INTERACTION_RANGE, this);</span>
+    }
+
+    // check if player has energy drink in inventory for speed boost
+<span class="fc bfc" id="L244" title="All 2 branches covered.">    if (game.getPlayerInventory().hasItem(InventoryObject.ENERGY_DRINK)) {</span>
+<span class="fc" id="L245">      moveSpeed += 150; // speed boost from energy drink</span>
+    }
+<span class="fc bfc" id="L247" title="All 2 branches covered.">    if (game.getPlayerInventory().hasItem(InventoryObject.CHAMOMILE_TEA)) {</span>
+<span class="fc" id="L248">      moveSpeed -= 150;</span>
+    }
+
+<span class="fc" id="L251">    return moveSpeed;</span>
+  }
+
+  /**
+   * Render Player Sprite.
+   *
+   * @param renderBuffer to add player to
+   */
+  public void render(RenderBuffer renderBuffer) {
+<span class="fc" id="L260">    playerSprite.setPosition(xcoord, ycoord);</span>
+<span class="fc" id="L261">    float[] tileCoords = world.pixelCoordsToTileIndex(xcoord, ycoord);</span>
+<span class="fc" id="L262">    renderBuffer.addToBuffer(</span>
+<span class="fc" id="L263">        new RenderObject(playerSprite, screenBatch, (int) Math.ceil(tileCoords[1])));</span>
+<span class="fc" id="L264">  }</span>
+
+  /** Dispose Used assets. */
+  public void dispose() {
+<span class="fc" id="L268">    spriteSheet.dispose();</span>
+<span class="fc" id="L269">  }</span>
+
+  public float getX() {
+<span class="fc" id="L272">    return xcoord;</span>
+  }
+
+  public void setX(float x) {
+<span class="fc" id="L276">    xcoord = x;</span>
+<span class="fc" id="L277">  }</span>
+
+  public float getY() {
+<span class="fc" id="L280">    return ycoord;</span>
+  }
+
+  public void setY(float y) {
+<span class="fc" id="L284">    ycoord = y;</span>
+<span class="fc" id="L285">  }</span>
+
+  public KeyBuffer getKeyBuffer() {
+<span class="fc" id="L288">    return keyBuffer;</span>
+  }
+
+  /**
+   * Set position of camera.
+   *
+   * @param newX Center X
+   * @param newY Center Y
+   */
+  public void setCameraPosition(float newX, float newY) {
+<span class="fc" id="L298">    camera.position.set(newX, newY, 0); // Center camera</span>
+<span class="fc" id="L299">    camera.update();</span>
+<span class="fc" id="L300">  }</span>
+
+  public boolean isSprinting() {
+<span class="fc" id="L303">    return isSprinting;</span>
+  }
+
+  public boolean isStaticAnimationSet() {
+<span class="pc bpc" id="L307" title="1 of 2 branches missed.">    return currentStaticAnimation != null;</span>
+  }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.13.202504020838</span></div></body></html>

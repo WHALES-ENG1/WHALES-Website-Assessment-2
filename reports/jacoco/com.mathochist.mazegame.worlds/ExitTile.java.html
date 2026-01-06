@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>ExitTile.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">headless</a> &gt; <a href="index.source.html" class="el_package">com.mathochist.mazegame.worlds</a> &gt; <span class="el_source">ExitTile.java</span></div><h1>ExitTile.java</h1><pre class="source lang-java linenums">package com.mathochist.mazegame.worlds;
+
+/** Declares the tile the player must stand on to attempt to enter a different room. */
+public class ExitTile {
+
+  private float xcoord;
+  private float ycoord;
+  private String targetMap;
+  private float targetX;
+  private float targetY;
+  private ExitConditions conditions;
+
+  /**
+   * Instantiate Exit tile and it's function.
+   *
+   * @param x X coordinate of exit tile.
+   * @param y Y coordinate of exit tile.
+   * @param targetMap Which room does exiting lead to.
+   * @param targetX Spawn X coordinate of new room.
+   * @param targetY Spawn Y coordinate of new room.
+   * @param conditions Exit conditions.
+   */
+  public ExitTile(
+<span class="fc" id="L24">      float x, float y, String targetMap, float targetX, float targetY, ExitConditions conditions) {</span>
+<span class="fc" id="L25">    this.xcoord = x;</span>
+<span class="fc" id="L26">    this.ycoord = y;</span>
+<span class="fc" id="L27">    this.targetMap = targetMap;</span>
+<span class="fc" id="L28">    this.targetX = targetX;</span>
+<span class="fc" id="L29">    this.targetY = targetY;</span>
+<span class="fc" id="L30">    this.conditions = conditions;</span>
+<span class="fc" id="L31">  }</span>
+
+  public float getX() {
+<span class="fc" id="L34">    return xcoord;</span>
+  }
+
+  public void setX(float x) {
+<span class="nc" id="L38">    this.xcoord = x;</span>
+<span class="nc" id="L39">  }</span>
+
+  public float getY() {
+<span class="fc" id="L42">    return ycoord;</span>
+  }
+
+  public void setY(float y) {
+<span class="nc" id="L46">    this.ycoord = y;</span>
+<span class="nc" id="L47">  }</span>
+
+  public String getTargetMap() {
+<span class="fc" id="L50">    return targetMap;</span>
+  }
+
+  public void setTargetMap(String targetMap) {
+<span class="nc" id="L54">    this.targetMap = targetMap;</span>
+<span class="nc" id="L55">  }</span>
+
+  public float getTargetX() {
+<span class="fc" id="L58">    return targetX;</span>
+  }
+
+  public void setTargetX(float targetX) {
+<span class="nc" id="L62">    this.targetX = targetX;</span>
+<span class="nc" id="L63">  }</span>
+
+  public float getTargetY() {
+<span class="fc" id="L66">    return targetY;</span>
+  }
+
+  public void setTargetY(float targetY) {
+<span class="nc" id="L70">    this.targetY = targetY;</span>
+<span class="nc" id="L71">  }</span>
+
+  public ExitConditions getConditions() {
+<span class="fc" id="L74">    return conditions;</span>
+  }
+
+  public void setConditions(ExitConditions conditions) {
+<span class="nc" id="L78">    this.conditions = conditions;</span>
+<span class="nc" id="L79">  }</span>
+
+  @Override
+  public String toString() {
+<span class="nc" id="L83">    return &quot;ExitTile{ X: &quot;</span>
+<span class="nc" id="L84">        + getX()</span>
+        + &quot;, Y: &quot;
+<span class="nc" id="L86">        + getY()</span>
+        + &quot;, TargetMap: &quot;
+<span class="nc" id="L88">        + getTargetMap()</span>
+        + &quot;, TargetX: &quot;
+<span class="nc" id="L90">        + getTargetX()</span>
+        + &quot;, TargetY: &quot;
+<span class="nc" id="L92">        + getTargetY();</span>
+  }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.13.202504020838</span></div></body></html>

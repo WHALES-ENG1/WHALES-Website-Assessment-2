@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>Glasses.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">headless</a> &gt; <a href="index.source.html" class="el_package">com.mathochist.mazegame.worlds.object</a> &gt; <span class="el_source">Glasses.java</span></div><h1>Glasses.java</h1><pre class="source lang-java linenums">package com.mathochist.mazegame.worlds.object;
+
+import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.graphics.g2d.TextureAtlas;
+import com.mathochist.mazegame.Main;
+import com.mathochist.mazegame.entity.MapEntity;
+import com.mathochist.mazegame.entity.Player;
+import com.mathochist.mazegame.entity.playerinventory.InventoryObject;
+import com.mathochist.mazegame.render.RenderBuffer;
+import com.mathochist.mazegame.screen.roomscreen.RoomScreen;
+import com.mathochist.mazegame.userinterface.Hud;
+import com.mathochist.mazegame.userinterface.speechtext.SpeechType;
+import com.mathochist.mazegame.worlds.GameWorld;
+
+/**
+ * Represents glasses that when interacted with increase the vision of the player. This is done by
+ * increasing the game width and height when player collects glasses.
+ */
+public class Glasses extends MapEntity {
+  private boolean collected;
+
+  /**
+   * Creates the Glasses object using Entity.
+   *
+   * @param game The instance of the game.
+   * @param batch The current SpritBatch.
+   * @param atlas Which Atlas object is in.
+   * @param tileX X Coord to place at.
+   * @param tileY Y Coord to place at.
+   * @param width Width of object.
+   * @param height Height of object.
+   * @param collidable Is object collidable.
+   */
+  public Glasses(
+      Main game,
+      SpriteBatch batch,
+      TextureAtlas atlas,
+      Integer tileX,
+      Integer tileY,
+      Integer width,
+      Integer height,
+      Boolean collidable) {
+<span class="fc" id="L43">    super(game, batch, atlas, &quot;glasses&quot;, tileX, tileY, width, height, collidable);</span>
+
+<span class="fc" id="L45">    collected = game.getPlayerInventory().hasItem(InventoryObject.GLASSES);</span>
+<span class="fc" id="L46">  }</span>
+
+  @Override
+  public boolean onInteract(Player p, GameWorld world, Hud worldHud) {
+<span class="pc bpc" id="L50" title="1 of 2 branches missed.">    if (collected) {</span>
+<span class="nc" id="L51">      return false;</span>
+    }
+<span class="fc" id="L53">    collected = true;</span>
+<span class="fc" id="L54">    super.game.getPlayerInventory().addItem(InventoryObject.GLASSES);</span>
+<span class="fc" id="L55">    RoomScreen screen = (RoomScreen) game.getScreen();</span>
+<span class="fc" id="L56">    screen.getCamera().zoom = 1.5f; // zoom out camera giving player more vision</span>
+<span class="fc" id="L57">    screen.getCamera().update();</span>
+<span class="fc" id="L58">    worldHud.getSpeechBubbleManager().removeBubblesOfType(SpeechType.NPC_SPEECH);</span>
+<span class="fc" id="L59">    worldHud</span>
+<span class="fc" id="L60">        .getSpeechBubbleManager()</span>
+<span class="fc" id="L61">        .createSpeechBubble(SpeechType.NPC_SPEECH, &quot;Glasses Collected!&quot;, 2000);</span>
+<span class="fc" id="L62">    super.game.getEventsCounter().glassesEvent();</span>
+
+<span class="fc" id="L64">    return true;</span>
+  }
+
+  @Override
+  public void render(GameWorld world, RenderBuffer renderBuffer) {
+<span class="pc bpc" id="L69" title="1 of 2 branches missed.">    if (collected) {</span>
+<span class="nc" id="L70">      return;</span>
+    }
+<span class="fc" id="L72">    super.render(world, renderBuffer);</span>
+<span class="fc" id="L73">  }</span>
+
+  /**
+   * Action on Collision.
+   *
+   * @param world The game world context.
+   * @return false
+   */
+  public boolean onCollision(GameWorld world) {
+<span class="nc" id="L82">    return false;</span>
+  }
+
+  @Override
+<span class="nc" id="L86">  public void onInteractEnd(Player p, GameWorld world) {}</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.13.202504020838</span></div></body></html>

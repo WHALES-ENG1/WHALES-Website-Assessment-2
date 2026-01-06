@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>MainFake.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">headless</a> &gt; <a href="index.source.html" class="el_package">headless</a> &gt; <span class="el_source">MainFake.java</span></div><h1>MainFake.java</h1><pre class="source lang-java linenums">package headless;
+
+import static org.mockito.Mockito.when;
+
+import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
+import com.badlogic.gdx.math.Matrix4;
+import com.mathochist.mazegame.Main;
+import com.mathochist.mazegame.entity.playerinventory.Inventory;
+import com.mathochist.mazegame.userinterface.AchievementHandler;
+import com.mathochist.mazegame.userinterface.EventsCounter;
+import com.mathochist.mazegame.userinterface.ScoreCounter;
+import com.mathochist.mazegame.userinterface.timers.TimerManager;
+import org.mockito.Mockito;
+
+public class MainFake extends Main {
+  private final SpriteBatch spriteBatch;
+  private final ShapeRenderer shapeRenderer;
+  private TimerManager timerManager;
+  private Inventory playerInventory;
+  private EventsCounter eventsCounter;
+  private AchievementHandler achievementHandler;
+  private ScoreCounter scoreCounter;
+
+<span class="fc" id="L25">  public MainFake() {</span>
+    // Setup mock SpriteBatch &amp; ShapeRenderer
+<span class="fc" id="L27">    this.spriteBatch = Mockito.mock(SpriteBatch.class);</span>
+<span class="fc" id="L28">    when(this.spriteBatch.getTransformMatrix()).thenReturn(new Matrix4());</span>
+<span class="fc" id="L29">    when(this.spriteBatch.getProjectionMatrix()).thenReturn(new Matrix4());</span>
+<span class="fc" id="L30">    this.shapeRenderer = Mockito.mock(ShapeRenderer.class);</span>
+<span class="fc" id="L31">  }</span>
+
+  @Override
+  public void create() {
+<span class="fc" id="L35">    this.timerManager = new TimerManager();</span>
+<span class="fc" id="L36">    this.playerInventory = new Inventory();</span>
+<span class="fc" id="L37">    this.eventsCounter = new EventsCounter(this);</span>
+<span class="fc" id="L38">    this.achievementHandler = new AchievementHandler(this);</span>
+<span class="fc" id="L39">    this.scoreCounter = new ScoreCounter(this);</span>
+<span class="fc" id="L40">  }</span>
+
+  @Override
+  public TimerManager getTimerManager() {
+<span class="fc" id="L44">    return timerManager;</span>
+  }
+
+  @Override
+  public Inventory getPlayerInventory() {
+<span class="fc" id="L49">    return playerInventory;</span>
+  }
+
+  @Override
+  public EventsCounter getEventsCounter() {
+<span class="fc" id="L54">    return eventsCounter;</span>
+  }
+
+  @Override
+  public SpriteBatch getSpriteBatch() {
+<span class="fc" id="L59">    return spriteBatch;</span>
+  }
+
+  @Override
+  public ShapeRenderer getShapeRenderer() {
+<span class="fc" id="L64">    return shapeRenderer;</span>
+  }
+
+  public ScoreCounter getScoreCounter() {
+<span class="fc" id="L68">    return scoreCounter;</span>
+  }
+
+  public AchievementHandler getAchievementHandler() {
+<span class="fc" id="L72">    return achievementHandler;</span>
+  }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.13.202504020838</span></div></body></html>

@@ -1,0 +1,114 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>Main.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">headless</a> &gt; <a href="index.source.html" class="el_package">com.mathochist.mazegame</a> &gt; <span class="el_source">Main.java</span></div><h1>Main.java</h1><pre class="source lang-java linenums">package com.mathochist.mazegame;
+
+import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
+import com.mathochist.mazegame.entity.playerinventory.Inventory;
+import com.mathochist.mazegame.screen.TitleScreen;
+import com.mathochist.mazegame.screen.roomscreen.RoomScreen;
+import com.mathochist.mazegame.userinterface.AchievementHandler;
+import com.mathochist.mazegame.userinterface.EventsCounter;
+import com.mathochist.mazegame.userinterface.ScoreCounter;
+import com.mathochist.mazegame.userinterface.timers.TimerManager;
+
+/** The Main class serves as the entry point for the game application. */
+<span class="fc" id="L15">public class Main extends AllNighterGame {</span>
+
+<span class="fc" id="L17">  public int width = 0;</span>
+<span class="fc" id="L18">  public int height = 0;</span>
+
+  private TimerManager timerManager;
+  private Inventory playerInventory;
+  private EventsCounter eventsCounter;
+  private AchievementHandler achievementHandler;
+  private ScoreCounter scoreCounter;
+  // CHANGED: Using one sprite batch for the game instead of many to make mocking for testing
+  // easier.
+  private SpriteBatch spriteBatch;
+  // CHANGED: Using one shape renderer for the game instead of many as part of sprite batch
+  // centralisation.
+  private ShapeRenderer shapeRenderer;
+  private String username;
+
+  /** Initializes the game by setting the initial screen to the TitleScreen. */
+  @Override
+  public void create() {
+    // Set title for the application window
+<span class="nc" id="L37">    Gdx.graphics.setTitle(&quot;All Nighter&quot;);</span>
+
+    // Set aspect ratio to 16:9
+<span class="nc" id="L40">    width = Gdx.graphics.getWidth() * 2;</span>
+<span class="nc" id="L41">    height = (width * 9) / 16;</span>
+<span class="nc" id="L42">    Gdx.graphics.setWindowedMode(width, height);</span>
+
+<span class="nc" id="L44">    this.spriteBatch = new SpriteBatch();</span>
+<span class="nc" id="L45">    this.shapeRenderer = new ShapeRenderer();</span>
+<span class="nc" id="L46">    this.shapeRenderer.setAutoShapeType(true);</span>
+
+<span class="nc" id="L48">    timerManager = new TimerManager();</span>
+<span class="nc" id="L49">    playerInventory = new Inventory();</span>
+<span class="nc" id="L50">    eventsCounter = new EventsCounter(this);</span>
+<span class="nc" id="L51">    scoreCounter = new ScoreCounter(this);</span>
+<span class="nc" id="L52">    achievementHandler = new AchievementHandler(this);</span>
+
+    // Set the initial screen to the title screen
+<span class="nc" id="L55">    setScreen(new TitleScreen(this));</span>
+<span class="nc" id="L56">  }</span>
+
+  /** Disposes of resources and exits the application when the game is closed. */
+  @Override
+  public void dispose() {
+<span class="fc" id="L61">    super.dispose();</span>
+<span class="fc" id="L62">    Gdx.app.exit();</span>
+<span class="fc" id="L63">  }</span>
+
+  /** reset game after playing. */
+  public void resetGame() {
+<span class="fc" id="L67">    this.timerManager = new TimerManager();</span>
+<span class="fc" id="L68">    this.playerInventory = new Inventory();</span>
+<span class="fc" id="L69">    this.eventsCounter = new EventsCounter(this);</span>
+<span class="fc" id="L70">    this.scoreCounter = new ScoreCounter(this);</span>
+<span class="fc" id="L71">    this.achievementHandler = new AchievementHandler(this);</span>
+
+<span class="fc" id="L73">    RoomScreen.isFireAlarmActive = false;</span>
+<span class="fc" id="L74">    RoomScreen.powerOutage = false;</span>
+<span class="fc" id="L75">    RoomScreen.fireEventCheck = true;</span>
+<span class="fc" id="L76">  }</span>
+
+  public TimerManager getTimerManager() {
+<span class="nc" id="L79">    return timerManager;</span>
+  }
+
+  public Inventory getPlayerInventory() {
+<span class="nc" id="L83">    return playerInventory;</span>
+  }
+
+  public EventsCounter getEventsCounter() {
+<span class="nc" id="L87">    return eventsCounter;</span>
+  }
+
+  public AchievementHandler getAchievementHandler() {
+<span class="nc" id="L91">    return achievementHandler;</span>
+  }
+
+  public ScoreCounter getScoreCounter() {
+<span class="nc" id="L95">    return scoreCounter;</span>
+  }
+
+  public SpriteBatch getSpriteBatch() {
+<span class="nc" id="L99">    return spriteBatch;</span>
+  }
+
+  public ShapeRenderer getShapeRenderer() {
+<span class="nc" id="L103">    return shapeRenderer;</span>
+  }
+
+  public String getUsername() {
+<span class="fc" id="L107">    return username;</span>
+  }
+
+  public void setUsername(String username) {
+<span class="fc" id="L111">    this.username = username;</span>
+<span class="fc" id="L112">  }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.13.202504020838</span></div></body></html>

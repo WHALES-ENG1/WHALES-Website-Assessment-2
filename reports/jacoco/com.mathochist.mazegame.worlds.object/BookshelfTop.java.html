@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>BookshelfTop.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">headless</a> &gt; <a href="index.source.html" class="el_package">com.mathochist.mazegame.worlds.object</a> &gt; <span class="el_source">BookshelfTop.java</span></div><h1>BookshelfTop.java</h1><pre class="source lang-java linenums">package com.mathochist.mazegame.worlds.object;
+
+import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.graphics.g2d.TextureAtlas;
+import com.mathochist.mazegame.Main;
+import com.mathochist.mazegame.entity.MapEntity;
+import com.mathochist.mazegame.entity.Player;
+import com.mathochist.mazegame.userinterface.Hud;
+import com.mathochist.mazegame.worlds.GameWorld;
+
+/** Creates an object that appears as the book of a bookshelf to immerse the player. */
+public class BookshelfTop extends MapEntity {
+  /**
+   * Create a bookshelf top object.
+   *
+   * @param game Current instance of game
+   * @param batch SpriteBatch
+   * @param atlas atlas containing bookshelf top
+   * @param tileX Spawn X
+   * @param tileY Spawn Y
+   * @param width Width of bookshelf top
+   * @param height height of bookshelf top
+   * @param collidable is bookshelf collidable
+   */
+  public BookshelfTop(
+      Main game,
+      SpriteBatch batch,
+      TextureAtlas atlas,
+      Integer tileX,
+      Integer tileY,
+      Integer width,
+      Integer height,
+      Boolean collidable) {
+<span class="fc" id="L34">    super(game, batch, atlas, &quot;bookshelf_top&quot;, tileX, tileY, width, height, collidable);</span>
+<span class="fc" id="L35">  }</span>
+
+  @Override
+  public boolean onInteract(Player p, GameWorld world, Hud worldHud) {
+<span class="nc" id="L39">    return false;</span>
+  }
+
+  @Override
+<span class="nc" id="L43">  public void onInteractEnd(Player p, GameWorld world) {}</span>
+
+  @Override
+  public boolean onCollision(GameWorld world) {
+<span class="nc" id="L47">    return false;</span>
+  }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.13.202504020838</span></div></body></html>

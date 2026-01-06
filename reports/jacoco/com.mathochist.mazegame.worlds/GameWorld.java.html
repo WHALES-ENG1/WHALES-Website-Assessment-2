@@ -1,0 +1,717 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>GameWorld.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">headless</a> &gt; <a href="index.source.html" class="el_package">com.mathochist.mazegame.worlds</a> &gt; <span class="el_source">GameWorld.java</span></div><h1>GameWorld.java</h1><pre class="source lang-java linenums">package com.mathochist.mazegame.worlds;
+
+import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.Input;
+import com.badlogic.gdx.audio.Music;
+import com.badlogic.gdx.files.FileHandle;
+import com.badlogic.gdx.graphics.Color;
+import com.badlogic.gdx.graphics.g2d.Sprite;
+import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.graphics.g2d.TextureAtlas;
+import com.badlogic.gdx.graphics.g2d.TextureRegion;
+import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
+import com.badlogic.gdx.utils.Json;
+import com.badlogic.gdx.utils.JsonValue;
+import com.badlogic.gdx.utils.viewport.FitViewport;
+import com.mathochist.mazegame.Main;
+import com.mathochist.mazegame.entity.MapEntity;
+import com.mathochist.mazegame.entity.Player;
+import com.mathochist.mazegame.entity.npc.Dean;
+import com.mathochist.mazegame.entity.playerinventory.Inventory;
+import com.mathochist.mazegame.render.RenderBuffer;
+import com.mathochist.mazegame.render.RenderObject;
+import com.mathochist.mazegame.screen.EndScreen;
+import com.mathochist.mazegame.screen.UsernameScreen;
+import com.mathochist.mazegame.screen.roomscreen.RoomScreen;
+import com.mathochist.mazegame.userinterface.speechtext.SpeechType;
+import com.mathochist.mazegame.worlds.object.Utils;
+import java.util.ArrayList;
+import java.util.Arrays;
+
+/**
+ * Represents the game world, including the map, tiles, and entities. Handles rendering and
+ * collision detection.
+ */
+public class GameWorld {
+  private final Main game;
+  public final RoomScreen parentScreen;
+  private final GameMap currentMap;
+  private final TextureAtlas textureAtlas;
+  private final SpriteBatch screenBatch;
+  private final Tile[][] mapArray;
+  private final MapEntity[] mapEntities;
+  private final ShapeRenderer shapeRenderer;
+  private final int pixelsHeight;
+  private Music backgroundMusic;
+  // Debug
+<span class="fc" id="L47">  private boolean debug = false;</span>
+
+  /**
+   * Sets up room and game logic to place player in the game.
+   *
+   * @param game Current instance of game
+   * @param parentScreen set room
+   * @param mapFile Current Map
+   * @param gameSpriteBatch The spriteBatch being used
+   */
+  public GameWorld(
+<span class="fc" id="L58">      Main game, RoomScreen parentScreen, FileHandle mapFile, SpriteBatch gameSpriteBatch) {</span>
+<span class="fc" id="L59">    this.game = game;</span>
+<span class="fc" id="L60">    this.parentScreen = parentScreen;</span>
+<span class="fc" id="L61">    this.screenBatch = gameSpriteBatch;</span>
+<span class="fc" id="L62">    this.shapeRenderer = game.getShapeRenderer();</span>
+<span class="fc" id="L63">    this.currentMap = new GameMap(mapFile);</span>
+
+<span class="fc" id="L65">    this.pixelsHeight = currentMap.getMapHeight() * currentMap.getTileHeight();</span>
+
+    // setup music
+<span class="pc bpc" id="L68" title="1 of 2 branches missed.">    if (backgroundMusic == null) { // only set music if not continuing from previous world</span>
+<span class="fc" id="L69">      backgroundMusic = this.currentMap.getBackgroundMusic();</span>
+<span class="fc bfc" id="L70" title="All 2 branches covered.">      if (backgroundMusic != null) {</span>
+<span class="fc" id="L71">        backgroundMusic.setLooping(true);</span>
+<span class="fc" id="L72">        backgroundMusic.setVolume(0.5f);</span>
+<span class="fc" id="L73">        backgroundMusic.play();</span>
+      }
+    }
+
+<span class="fc" id="L77">    textureAtlas = new TextureAtlas(Gdx.files.internal(this.currentMap.getTextureAtlasFile()));</span>
+<span class="fc" id="L78">    TextureRegion[] tileTextures = new TextureRegion[currentMap.getTilesetRegionNames().length];</span>
+<span class="fc bfc" id="L79" title="All 2 branches covered.">    for (int i = 0; i &lt; currentMap.getTilesetRegionNames().length; i++) {</span>
+<span class="fc" id="L80">      System.out.println(currentMap.getTilesetRegionNames()[i]);</span>
+<span class="fc" id="L81">      tileTextures[i] = textureAtlas.findRegion(currentMap.getTilesetRegionNames()[i]);</span>
+    }
+
+<span class="fc" id="L84">    mapArray = new Tile[currentMap.getMapHeight()][currentMap.getMapWidth()];</span>
+
+    // fill loop: iterate rows (j) then cols (i) and write mapArray[j][i]
+<span class="fc bfc" id="L87" title="All 2 branches covered.">    for (int j = 0; j &lt; currentMap.getMapHeight(); j++) {</span>
+<span class="fc bfc" id="L88" title="All 2 branches covered.">      for (int i = 0; i &lt; currentMap.getMapWidth(); i++) {</span>
+<span class="fc" id="L89">        mapArray[j][i] =</span>
+            new Tile(
+<span class="fc" id="L91">                currentMap.getTilesetRegionNames()[currentMap.getMapMatrix()[j][i]],</span>
+<span class="fc" id="L92">                this.isTileCollidable(i, j),</span>
+                new Sprite(tileTextures[0]));
+<span class="fc" id="L94">        Sprite s = mapArray[j][i].getSprite();</span>
+<span class="fc" id="L95">        s.setRegion(tileTextures[currentMap.getMapMatrix()[j][i]]);</span>
+<span class="fc" id="L96">        float worldX = i * currentMap.getTileWidth();</span>
+<span class="fc" id="L97">        float worldY = pixelsHeight - ((j + 1) * currentMap.getTileHeight());</span>
+<span class="fc" id="L98">        s.setPosition(worldX, worldY);</span>
+      }
+    }
+<span class="fc" id="L101">    mapEntities = new MapEntity[currentMap.getNumberOfMapEntities()];</span>
+    // Load map entities (NPCs, items, etc.)
+<span class="fc" id="L103">    JsonValue entitiesData = currentMap.getObjectsLayer();</span>
+<span class="fc bfc" id="L104" title="All 2 branches covered.">    for (JsonValue entityData : entitiesData) {</span>
+      // Create MapEntity instances based on entityData
+      // and add them to mapEntities array
+
+      // get key
+<span class="fc" id="L109">      String entityKey = entityData.name(); // e.g. com.mathochist.mazegame.World.Objects.Bookcase</span>
+<span class="fc" id="L110">      System.out.println(&quot;Loaded entity: &quot; + entityKey);</span>
+
+<span class="fc" id="L112">      int width = entityData.getInt(&quot;width&quot;);</span>
+<span class="fc" id="L113">      int height = entityData.getInt(&quot;height&quot;);</span>
+<span class="fc" id="L114">      boolean collidable = entityData.getBoolean(&quot;collidable&quot;);</span>
+
+<span class="fc" id="L116">      JsonValue positionData = entityData.get(&quot;positions&quot;);</span>
+<span class="fc" id="L117">      Json json = new Json();</span>
+<span class="fc" id="L118">      int[][] positions = json.readValue(int[][].class, positionData);</span>
+
+<span class="fc bfc" id="L120" title="All 2 branches covered.">      for (int[] pos : positions) {</span>
+        // Instantiate specific MapEntity subclasses based on entityKey
+<span class="fc" id="L122">        MapEntity entity =</span>
+<span class="fc" id="L123">            Utils.instantiate(</span>
+                entityKey,
+                MapEntity.class,
+                this.game,
+                screenBatch,
+                this.textureAtlas,
+<span class="fc" id="L129">                pos[0],</span>
+<span class="fc" id="L130">                pos[1],</span>
+<span class="fc" id="L131">                width,</span>
+<span class="fc" id="L132">                height,</span>
+<span class="fc" id="L133">                collidable);</span>
+
+        // Add entity to mapEntities array
+        // For simplicity, we just add to the first available slot
+        // probably a better way to do this idk and idc
+<span class="pc bpc" id="L138" title="1 of 2 branches missed.">        for (int k = 0; k &lt; mapEntities.length; k++) {</span>
+<span class="fc bfc" id="L139" title="All 2 branches covered.">          if (mapEntities[k] == null) {</span>
+<span class="fc" id="L140">            mapEntities[k] = entity;</span>
+<span class="fc" id="L141">            break;</span>
+          }
+        }
+      }
+
+<span class="fc" id="L146">      System.out.println(&quot;Total entities loaded: &quot; + mapEntities.length);</span>
+<span class="fc" id="L147">    }</span>
+<span class="fc" id="L148">  }</span>
+
+  /**
+   * Calculate the Euclidean distance between two points in tile coordinates.
+   *
+   * @param tileX1 the x coordinate of the first point in tile units
+   * @param tileY1 the y coordinate of the first point in tile units
+   * @param tileX2 the x coordinate of the second point in tile units
+   * @param tileY2 the y coordinate of the second point in tile units
+   * @return the Euclidean distance between the two points
+   */
+  public static double getTileDistance(float tileX1, float tileY1, float tileX2, float tileY2) {
+<span class="nc" id="L160">    return Math.sqrt((tileX1 - tileX2) * (tileX1 - tileX2) + (tileY1 - tileY2) * (tileY1 - tileY2));</span>
+  }
+
+  /**
+   * Calculate the distance from a point to the nearest edge of an entity's bounding box. &lt;br&gt;
+   * &lt;br&gt;
+   * &lt;b&gt;CREDITS: &lt;a
+   * href=&quot;https://stackoverflow.com/questions/5254838/calculating-distance-between-a-point-and-a-rectangular-box-nearest-point&quot;&gt;StackOverflow&lt;/a&gt;&lt;/b&gt;
+   *
+   * @param entityBoundBox the bounding box of the entity in tile coordinates [x, y, width, height]
+   * @param tileX1 the x coordinate of the point in tile units
+   * @param tileY1 the y coordinate of the point in tile units
+   * @return the distance from the point to the nearest edge of the bounding box
+   */
+  public static double distanceFromBoundBox(float[] entityBoundBox, float tileX1, float tileY1) {
+<span class="fc" id="L175">    float rxMin = entityBoundBox[0];</span>
+<span class="fc" id="L176">    float rxMax = entityBoundBox[0] + entityBoundBox[2];</span>
+<span class="fc" id="L177">    float ryMin = entityBoundBox[1];</span>
+<span class="fc" id="L178">    float ryMax = entityBoundBox[1] + entityBoundBox[3];</span>
+
+<span class="pc bpc" id="L180" title="7 of 8 branches missed.">    if (rxMin &lt;= tileX1 &amp;&amp; tileX1 &lt;= rxMax &amp;&amp; ryMin &lt;= tileY1 &amp;&amp; tileY1 &lt;= ryMax) {</span>
+<span class="nc" id="L181">      return Math.min(</span>
+<span class="nc" id="L182">          Math.min(tileX1 - rxMin, rxMax - tileX1), Math.min(tileY1 - ryMin, ryMax - tileY1));</span>
+    }
+
+<span class="fc" id="L185">    double dx = Math.max(0, Math.max(rxMin - tileX1, tileX1 - rxMax));</span>
+<span class="fc" id="L186">    double dy = Math.max(0, Math.max(ryMin - tileY1, tileY1 - ryMax));</span>
+<span class="fc" id="L187">    return Math.sqrt(dx * dx + dy * dy);</span>
+  }
+
+  public GameMap getMap() {
+<span class="fc" id="L191">    return currentMap;</span>
+  }
+
+  public TextureAtlas getTextureAtlas() {
+<span class="nc" id="L195">    return textureAtlas;</span>
+  }
+
+  /**
+   * Renders the tiles and the map entities of the game.
+   *
+   * @param viewport current viewport
+   * @param renderBuffer the Renderbuffer
+   */
+  public void render(FitViewport viewport, RenderBuffer renderBuffer) {
+    // Rendering logic for the game world goes here
+    // Draw tiles
+<span class="fc bfc" id="L207" title="All 2 branches covered.">    for (int j = 0; j &lt; currentMap.getMapHeight(); j++) {</span>
+<span class="fc bfc" id="L208" title="All 2 branches covered.">      for (int i = 0; i &lt; currentMap.getMapWidth(); i++) {</span>
+<span class="fc" id="L209">        renderBuffer.addToBuffer(</span>
+            new RenderObject(
+<span class="fc" id="L211">                mapArray[j][i].getSprite(), screenBatch, j)); // using row index as z-index</span>
+      }
+    }
+    // Draw map entities
+<span class="fc bfc" id="L215" title="All 2 branches covered.">    for (MapEntity entity : mapEntities) {</span>
+<span class="pc bpc" id="L216" title="1 of 2 branches missed.">      if (entity != null) {</span>
+<span class="fc" id="L217">        entity.render(this, renderBuffer);</span>
+      }
+    }
+<span class="fc" id="L220">  }</span>
+
+  /**
+   * Update method for the game world.
+   * Handles updating dynamic entities like NPCs.
+   *
+   * @param delta  the time since the last frame in seconds
+   * @param player the player entity
+   */
+  public void update(float delta, Player player) {
+    // Update all map entities
+<span class="fc bfc" id="L231" title="All 2 branches covered.">    for (MapEntity entity : mapEntities) {</span>
+<span class="pc bpc" id="L232" title="1 of 2 branches missed.">      if (entity == null) {</span>
+<span class="nc" id="L233">        continue;</span>
+      }
+
+      // If this entity is a Dean, update it with player info
+<span class="fc bfc" id="L237" title="All 2 branches covered.">      if (entity instanceof Dean deanEntity) {</span>
+<span class="fc" id="L238">        deanEntity.update(delta, player, this);</span>
+      }
+    }
+<span class="fc" id="L241">  }</span>
+
+  // CHANGED: Removed render_collision_layer debug method left in with TODO to remove.
+
+  /** renders debug layers to help with testing. */
+  public void renderDebugLayerShapes() {
+<span class="pc bpc" id="L247" title="1 of 2 branches missed.">    if (Gdx.input.isKeyJustPressed(Input.Keys.F3)) {</span>
+<span class="nc bnc" id="L248" title="All 2 branches missed.">      debug = !debug;</span>
+    }
+<span class="pc bpc" id="L250" title="1 of 2 branches missed.">    if (debug) {</span>
+      // Optionally whole render collision layer for debugging
+<span class="nc bnc" id="L252" title="All 2 branches missed.">      for (int j = 0; j &lt; currentMap.getMapHeight(); j++) {</span>
+<span class="nc bnc" id="L253" title="All 2 branches missed.">        for (int i = 0; i &lt; currentMap.getMapWidth(); i++) {</span>
+<span class="nc bnc" id="L254" title="All 2 branches missed.">          if (mapArray[j][i].isCollidable()) {</span>
+<span class="nc" id="L255">            shapeRenderer.setColor(new Color(1, 0, 0, 0.4f)); // semi-transparent red</span>
+<span class="nc" id="L256">            float x = i * currentMap.getTileWidth();</span>
+<span class="nc" id="L257">            float y = pixelsHeight - ((j + 1) * currentMap.getTileHeight());</span>
+<span class="nc" id="L258">            shapeRenderer.rect(x, y, currentMap.getTileWidth(), currentMap.getTileHeight());</span>
+          }
+        }
+      }
+
+      // highlight all entities for debugging
+<span class="nc bnc" id="L264" title="All 2 branches missed.">      for (MapEntity entity : mapEntities) {</span>
+<span class="nc bnc" id="L265" title="All 2 branches missed.">        if (entity != null) {</span>
+<span class="nc" id="L266">          float[] bbox = entity.getBoundBox();</span>
+<span class="nc" id="L267">          shapeRenderer.setColor(new Color(0, 0, 1, 0.4f)); // semi-transparent blue</span>
+          // bbox: x, y, width, height in tile coords
+<span class="nc" id="L269">          float x = bbox[0] * currentMap.getTileWidth();</span>
+<span class="nc" id="L270">          float y = pixelsHeight - ((bbox[1] + bbox[3]) * currentMap.getTileHeight());</span>
+<span class="nc" id="L271">          shapeRenderer.rect(</span>
+<span class="nc" id="L272">              x, y, bbox[2] * currentMap.getTileWidth(), bbox[3] * currentMap.getTileHeight());</span>
+        }
+      }
+    }
+<span class="fc" id="L276">  }</span>
+
+  /**
+   * Get the collision layer around the player based on their pixel coordinates. &lt;br&gt;
+   * &lt;b&gt;Note:&lt;/b&gt; This can be used for other objects, not just the player. Slightly misnamed for
+   * convenience.
+   *
+   * @param playerXcoordPixels the player's x coordinate in pixels
+   * @param playerYcoordPixels the player's y coordinate in pixels
+   * @return a boolean array representing collisions in the order: above, below, left, right
+   */
+  public boolean[] getCollisionLayer(float playerXcoordPixels, float playerYcoordPixels) {
+    // Adjust playerYPixels to account for viewport height changes (because the viewport scales
+    // height during resizing)
+<span class="fc" id="L290">    float collisionOffset =</span>
+<span class="fc" id="L291">        currentMap.getTileHeight() - 16; // tiny bit of leeway so doesn't jump gaps</span>
+<span class="fc" id="L292">    float[] playerTilePos =</span>
+<span class="fc" id="L293">        this.pixelCoordsToTileIndex(playerXcoordPixels, playerYcoordPixels + collisionOffset);</span>
+<span class="fc" id="L294">    boolean isTransition = this.checkForWorldTransition(playerTilePos);</span>
+<span class="pc bpc" id="L295" title="1 of 2 branches missed.">    if (isTransition) {</span>
+      // If a world transition occurred, return no collisions to avoid issues during transition
+<span class="nc" id="L297">      return new boolean[] {false, false, false, false};</span>
+    }
+<span class="fc" id="L299">    boolean[] entityCollisionLayer = this.getCollisionLayerWithEntities(playerTilePos);</span>
+
+    // Handle entities out of the map without crashing the game
+<span class="fc bfc" id="L302" title="All 2 branches covered.">    if (Math.floor(playerTilePos[1]) &lt; 0</span>
+<span class="pc bpc" id="L303" title="1 of 2 branches missed.">        || Math.floor(playerTilePos[0]) &lt; 0</span>
+<span class="pc bpc" id="L304" title="1 of 2 branches missed.">        || mapArray.length - 1 &lt; Math.ceil(playerTilePos[1])</span>
+<span class="pc bpc" id="L305" title="1 of 2 branches missed.">        || mapArray[0].length - 1 &lt; Math.ceil(playerTilePos[0])) {</span>
+<span class="fc" id="L306">      return new boolean[] {false, false, false, false};</span>
+    }
+<span class="fc" id="L308">    return new boolean[]{</span>
+<span class="pc bpc" id="L309" title="2 of 4 branches missed.">      mapArray[(int) Math.floor(playerTilePos[1])][Math.round(playerTilePos[0])].isCollidable()</span>
+        || entityCollisionLayer[0],
+<span class="pc bpc" id="L311" title="1 of 4 branches missed.">      mapArray[(int) Math.ceil(playerTilePos[1])][Math.round(playerTilePos[0])].isCollidable()</span>
+        || entityCollisionLayer[1],
+<span class="pc bpc" id="L313" title="1 of 4 branches missed.">      mapArray[Math.round(playerTilePos[1])][(int) Math.floor(playerTilePos[0])].isCollidable()</span>
+        || entityCollisionLayer[2],
+<span class="pc bpc" id="L315" title="1 of 4 branches missed.">      mapArray[Math.round(playerTilePos[1])][(int) Math.ceil(playerTilePos[0])].isCollidable()</span>
+        || entityCollisionLayer[3]
+    }; // above, below, left, right
+  }
+
+  private boolean checkForWorldTransition(float[] playerTilePos) {
+<span class="fc" id="L321">    ExitTile[] exitTiles = currentMap.getExitPoints();</span>
+<span class="fc bfc" id="L322" title="All 2 branches covered.">    for (ExitTile exitTile : exitTiles) {</span>
+<span class="pc bpc" id="L323" title="1 of 2 branches missed.">      if (Math.round(exitTile.getX()) == Math.round(playerTilePos[0])</span>
+<span class="nc bnc" id="L324" title="All 2 branches missed.">          &amp;&amp; Math.round(exitTile.getY()) == Math.round(playerTilePos[1])) {</span>
+<span class="nc" id="L325">        System.out.println(&quot;On exit tile&quot;);</span>
+<span class="nc" id="L326">        System.out.println(exitTile);</span>
+<span class="nc" id="L327">        loadNewWorld(exitTile);</span>
+<span class="nc" id="L328">        return true;</span>
+      }
+    }
+<span class="fc" id="L331">    return false;</span>
+  }
+
+  private boolean[] getCollisionLayerWithEntities(float[] playerTilePos) {
+<span class="fc" id="L335">    boolean[] collisionLayer =</span>
+        new boolean[] {false, false, false, false}; // above, below, left, right
+
+<span class="fc bfc" id="L338" title="All 2 branches covered.">    for (MapEntity entity : mapEntities) {</span>
+<span class="fc" id="L339">      boolean[] entityCollisionLayer = new boolean[] {false, false, false, false};</span>
+
+<span class="pc bpc" id="L341" title="1 of 2 branches missed.">      if (entity == null) {</span>
+<span class="nc" id="L342">        continue;</span>
+      }
+
+<span class="fc" id="L345">      float[] entityBoundBox = entity.getBoundBox();</span>
+
+      // brief explanation of how the bbox interacts with the player
+      // bbox: x, y, width, height in tile coords
+      // playerTilePos: x, y in tile coords (center of player)
+      // each direction 'or's with any previous collision detected
+      // we check a direction by seeing if the player's tile position plus 1 in that direction
+      // would be within the entity's bbox
+      // we 'and' that result with 3 parameters to prevent collisions to either side of the
+      // collision
+      // edge, and on the other side of the entity.
+      // These are rounded so we have 0.5 error s.t. we do not get collisions when up against the
+      // object on a different axis.
+
+      // above
+<span class="fc" id="L360">      entityCollisionLayer[0] =</span>
+<span class="fc bfc" id="L361" title="All 2 branches covered.">          Math.floor(playerTilePos[1]) &lt;= entityBoundBox[1] + entityBoundBox[3]</span>
+<span class="fc bfc" id="L362" title="All 2 branches covered.">              &amp;&amp; Math.round(playerTilePos[0]) &gt;= entityBoundBox[0]</span>
+<span class="fc bfc" id="L363" title="All 2 branches covered.">              &amp;&amp; Math.round(playerTilePos[0]) &lt; entityBoundBox[0] + entityBoundBox[2]</span>
+<span class="pc bpc" id="L364" title="1 of 2 branches missed.">              &amp;&amp; Math.floor(playerTilePos[1]) - 1 &gt;= entityBoundBox[1];</span>
+
+      // below
+<span class="fc" id="L367">      entityCollisionLayer[1] =</span>
+<span class="fc bfc" id="L368" title="All 2 branches covered.">          Math.floor(playerTilePos[1]) &gt;= entityBoundBox[1]</span>
+<span class="fc bfc" id="L369" title="All 2 branches covered.">              &amp;&amp; Math.round(playerTilePos[0]) &gt;= entityBoundBox[0]</span>
+<span class="fc bfc" id="L370" title="All 2 branches covered.">              &amp;&amp; Math.round(playerTilePos[0]) &lt; entityBoundBox[0] + entityBoundBox[2]</span>
+<span class="fc bfc" id="L371" title="All 2 branches covered.">              &amp;&amp; Math.floor(playerTilePos[1]) + 1 &lt;= entityBoundBox[1] + entityBoundBox[3];</span>
+
+      // left
+<span class="fc" id="L374">      entityCollisionLayer[2] =</span>
+<span class="fc bfc" id="L375" title="All 2 branches covered.">          Math.ceil(playerTilePos[0]) &lt;= entityBoundBox[0] + entityBoundBox[2]</span>
+<span class="fc bfc" id="L376" title="All 2 branches covered.">              &amp;&amp; Math.round(playerTilePos[1]) &gt; entityBoundBox[1]</span>
+<span class="fc bfc" id="L377" title="All 2 branches covered.">              &amp;&amp; Math.round(playerTilePos[1]) &lt;= entityBoundBox[1] + entityBoundBox[3]</span>
+<span class="fc bfc" id="L378" title="All 2 branches covered.">              &amp;&amp; Math.ceil(playerTilePos[0]) - 1 &gt;= entityBoundBox[0];</span>
+
+      // right
+<span class="fc" id="L381">      entityCollisionLayer[3] =</span>
+<span class="fc bfc" id="L382" title="All 2 branches covered.">          Math.ceil(playerTilePos[0]) &gt;= entityBoundBox[0]</span>
+<span class="fc bfc" id="L383" title="All 2 branches covered.">              &amp;&amp; Math.round(playerTilePos[1]) &gt; entityBoundBox[1]</span>
+<span class="fc bfc" id="L384" title="All 2 branches covered.">              &amp;&amp; Math.round(playerTilePos[1]) &lt;= entityBoundBox[1] + entityBoundBox[3]</span>
+<span class="fc bfc" id="L385" title="All 2 branches covered.">              &amp;&amp; Math.ceil(playerTilePos[0]) + 1 &lt;= entityBoundBox[0] + entityBoundBox[2];</span>
+
+      // call collision event if any collision detected
+<span class="pc bpc" id="L388" title="3 of 8 branches missed.">      if (entityCollisionLayer[0]</span>
+          || entityCollisionLayer[1]
+          || entityCollisionLayer[2]
+          || entityCollisionLayer[3]) {
+<span class="fc" id="L392">        entity.onCollision(this);</span>
+      }
+
+<span class="fc bfc" id="L395" title="All 2 branches covered.">      if (!entity.isCollidable()) {</span>
+<span class="fc" id="L396">        continue;</span>
+      }
+
+      // combine with overall collision layer
+<span class="pc bpc" id="L400" title="2 of 4 branches missed.">      collisionLayer[0] = collisionLayer[0] || entityCollisionLayer[0];</span>
+<span class="fc bfc" id="L401" title="All 4 branches covered.">      collisionLayer[1] = collisionLayer[1] || entityCollisionLayer[1];</span>
+<span class="fc bfc" id="L402" title="All 4 branches covered.">      collisionLayer[2] = collisionLayer[2] || entityCollisionLayer[2];</span>
+<span class="fc bfc" id="L403" title="All 4 branches covered.">      collisionLayer[3] = collisionLayer[3] || entityCollisionLayer[3];</span>
+    }
+
+<span class="fc" id="L406">    return collisionLayer;</span>
+  }
+
+  /** disposes assets after use. */
+  public void dispose() {
+<span class="fc" id="L411">    textureAtlas.dispose();</span>
+<span class="fc" id="L412">  }</span>
+
+  /**
+   * Convert pixel coordinates to tile indices.
+   *
+   * @param pixelCoordX the x coordinate in pixels
+   * @param pixelCoordY the y coordinate in pixels
+   * @return an array containing the x and y coordinates in tile units
+   */
+  public float[] pixelCoordsToTileIndex(float pixelCoordX, float pixelCoordY) {
+<span class="fc" id="L422">    float tileX = (pixelCoordX) / currentMap.getTileWidth();</span>
+<span class="fc" id="L423">    float tileY = (pixelsHeight - pixelCoordY) / currentMap.getTileHeight();</span>
+<span class="fc" id="L424">    return new float[] {tileX, tileY};</span>
+  }
+
+  /**
+   * Convert tile indices to pixel coordinates.
+   *
+   * @param tileX the x coordinate in tiles
+   * @param tileY the y coordinate in tiles
+   * @return an array containing the x and y coordinates in pixels
+   */
+  public float[] tileIndexToPixelCoords(float tileX,  float tileY) {
+<span class="fc" id="L435">    float pixelX = (tileX * currentMap.getTileWidth());</span>
+<span class="fc" id="L436">    float pixelY = pixelsHeight - (tileY * currentMap.getTileHeight());</span>
+<span class="fc" id="L437">    return new float[] {pixelX, pixelY};</span>
+  }
+
+  private boolean isTileCollidable(int tileX, int tileY) {
+<span class="fc" id="L441">    int tileIndex = currentMap.getMapMatrix()[tileY][tileX];</span>
+<span class="fc" id="L442">    return java.util.Arrays.stream(currentMap.getCollisionTiles())</span>
+<span class="fc bfc" id="L443" title="All 2 branches covered.">        .anyMatch(tile -&gt; tile == tileIndex);</span>
+  }
+
+  /**
+   * Get the pixel bbox of a tile given its tile coordinates.
+   *
+   * @param tileX the x coordinate in tile units
+   * @param tileY the y coordinate in tile units
+   * @return an array containing the x, y, width, and height of the tile in pixels
+   */
+  public float[] getPixelBoundsOfTile(int tileX, int tileY) {
+<span class="nc" id="L454">    float pixelX = tileX * currentMap.getTileWidth();</span>
+<span class="nc" id="L455">    float pixelY = tileY * currentMap.getTileHeight();</span>
+<span class="nc" id="L456">    return new float[] {pixelX, pixelY, currentMap.getTileWidth(), currentMap.getTileHeight()};</span>
+  }
+
+  /**
+   * Get the spawn point of the current map in pixel coordinates, adjusting for viewport height
+   * changes.
+   *
+   * @return an array containing the x and y coordinates of the spawn point in pixels
+   */
+  public int[] getSpawnPointPixels() {
+<span class="fc" id="L466">    float[] spawnPixelCoords = this.getPixels(currentMap.getSpawnX(), currentMap.getSpawnY());</span>
+<span class="fc" id="L467">    return new int[] {(int) spawnPixelCoords[0], (int) spawnPixelCoords[1]};</span>
+  }
+
+  /**
+   * Convert tile coordinates to pixel coordinates, adjusting for viewport height changes. &lt;br&gt;
+   * &lt;b&gt;Note:&lt;/b&gt; This returns float for increased precision when dealing with entities that may not
+   * be aligned to the tile grid. for tile-aligned positions, consider using getPixelBoundsOfTile
+   * instead. or take the floor/ceil of the returned values. (See collision detection for an example
+   * of this)
+   *
+   * @param tileX the x coordinate in tile units
+   * @param tileY the y coordinate in tile units
+   * @return an array containing the x and y coordinates in pixels
+   */
+  public float[] getPixels(float tileX, float tileY) {
+<span class="fc" id="L482">    float x = tileX * currentMap.getTileWidth();</span>
+<span class="fc" id="L483">    float y = pixelsHeight - (tileY * currentMap.getTileHeight());</span>
+<span class="fc" id="L484">    return new float[] {x, y};</span>
+  }
+
+  /**
+   * Scale the world based on viewport height changes. (Scales collision layers and entity
+   * positions)&lt;br&gt;
+   * &lt;b&gt;Only used by RoomScreen, do not call unless you know what you are doing&lt;/b&gt;
+   *
+   * @param oldViewportHeight the previous height of the viewport
+   * @param newViewportHeight the new height of the viewport
+   */
+<span class="nc" id="L495">  public void scaleWorld(float oldViewportHeight, float newViewportHeight) {}</span>
+
+  /**
+   * Get all map entities within a certain radius of the given tile coordinates.
+   *
+   * @param tileX the x coordinate in tile units
+   * @param tileY the y coordinate in tile units
+   * @param radius the radius within which to check for entities (in tile units)
+   * @return an array of MapEntity objects within the specified radius
+   */
+  public MapEntity[] getMapEntitiesInRadius(float tileX, float tileY, double radius) {
+<span class="fc" id="L506">    ArrayList&lt;MapEntity&gt; arrayOutput = new ArrayList&lt;&gt;();</span>
+<span class="fc bfc" id="L507" title="All 2 branches covered.">    for (MapEntity entity : mapEntities) {</span>
+<span class="fc" id="L508">      double dist = distanceFromBoundBox(entity.getBoundBox(), tileX, tileY);</span>
+<span class="pc bpc" id="L509" title="1 of 2 branches missed.">      if (dist &lt;= radius) {</span>
+<span class="fc" id="L510">        arrayOutput.add(entity);</span>
+      }
+    }
+<span class="fc" id="L513">    MapEntity[] output = new MapEntity[arrayOutput.size()];</span>
+<span class="fc" id="L514">    arrayOutput.toArray(output);</span>
+<span class="fc" id="L515">    return output;</span>
+  }
+
+  private String[] beautifyItemNames(String[] itemKeys) {
+<span class="fc" id="L519">    String[] beautifiedNames = new String[itemKeys.length];</span>
+<span class="fc bfc" id="L520" title="All 2 branches covered.">    for (int i = 0; i &lt; itemKeys.length; i++) {</span>
+<span class="fc" id="L521">      String item = itemKeys[i];</span>
+<span class="fc" id="L522">      item = item.replace(&quot;_&quot;, &quot; &quot;);</span>
+<span class="fc" id="L523">      String[] words = item.split(&quot; &quot;);</span>
+<span class="fc" id="L524">      StringBuilder capitalizedItem = new StringBuilder();</span>
+<span class="fc bfc" id="L525" title="All 2 branches covered.">      for (String word : words) {</span>
+<span class="fc" id="L526">        capitalizedItem</span>
+<span class="fc" id="L527">            .append(Character.toUpperCase(word.charAt(0)))</span>
+<span class="fc" id="L528">            .append(word.substring(1))</span>
+<span class="fc" id="L529">            .append(&quot; &quot;);</span>
+      }
+<span class="fc" id="L531">      beautifiedNames[i] = capitalizedItem.toString().trim();</span>
+    }
+<span class="fc" id="L533">    return beautifiedNames;</span>
+  }
+
+  /**
+   * Load a new world based on the given exit tile.
+   *
+   * @param targetExit the exit tile to transition to
+   */
+  public void loadNewWorld(ExitTile targetExit) {
+    // right dont really know how im gonna do this yet so im gonna comment how i think i should
+    // first gotta find the closest exit tile to the player
+    // then load the map file for that exit tile
+    // then set the player's position to the correct spawn point on the new map
+    // here we go
+<span class="pc bpc" id="L547" title="1 of 2 branches missed.">    if (parentScreen.isPrepareTransition()) {</span>
+<span class="nc" id="L548">      return;</span>
+    }
+    // check exit conditions
+<span class="fc" id="L551">    ExitConditions conditions = targetExit.getConditions();</span>
+<span class="fc" id="L552">    Inventory playerInventory = game.getPlayerInventory();</span>
+<span class="fc bfc" id="L553" title="All 4 branches covered.">    if (Arrays.asList(conditions.requiredItems()).contains(&quot;keycard&quot;) &amp;&amp; RoomScreen.powerOutage) {</span>
+<span class="fc" id="L554">      parentScreen.getGameHud().getSpeechBubbleManager().removeBubblesOfType(SpeechType.NPC_SPEECH);</span>
+<span class="fc" id="L555">      parentScreen</span>
+<span class="fc" id="L556">          .getGameHud()</span>
+<span class="fc" id="L557">          .getSpeechBubbleManager()</span>
+<span class="fc" id="L558">          .createSpeechBubble(</span>
+              SpeechType.NPC_SPEECH, &quot;Keycard doesn't work during a power outage!&quot;, 2000);
+<span class="fc" id="L560">      stopPlayerLeaving(targetExit);</span>
+<span class="fc" id="L561">      return;</span>
+<span class="fc bfc" id="L562" title="All 2 branches covered.">    } else if (!conditions.hasRequiredItems(playerInventory)) { // Check for missing items</span>
+<span class="fc" id="L563">      System.out.println(&quot;Missing required items to exit&quot;);</span>
+<span class="fc" id="L564">      String[] missingItems = conditions.getMissingItems(playerInventory);</span>
+      // Checks if Keycard is missing and if so increments negative event counter
+<span class="pc bpc" id="L566" title="1 of 2 branches missed.">      if (Arrays.asList(missingItems).contains(&quot;keycard&quot;)) {</span>
+<span class="fc" id="L567">        game.getEventsCounter().keycardNeededEvent();</span>
+      }
+      // replace underscores with spaces and capitalize first letter of each word
+<span class="fc" id="L570">      String[] beautifiedMissingItems = beautifyItemNames(missingItems);</span>
+<span class="fc" id="L571">      String missingItemsList = String.join(&quot;, &quot;, beautifiedMissingItems);</span>
+<span class="fc" id="L572">      parentScreen.getGameHud().getSpeechBubbleManager().removeBubblesOfType(SpeechType.NPC_SPEECH);</span>
+<span class="fc" id="L573">      parentScreen</span>
+<span class="fc" id="L574">          .getGameHud()</span>
+<span class="fc" id="L575">          .getSpeechBubbleManager()</span>
+<span class="fc" id="L576">          .createSpeechBubble(</span>
+              SpeechType.NPC_SPEECH,
+              &quot;You need &quot; + missingItemsList + &quot; before you can exit here!&quot;,
+              2000);
+
+<span class="fc" id="L581">      stopPlayerLeaving(targetExit);</span>
+<span class="fc" id="L582">      return;</span>
+    }
+<span class="fc" id="L584">    parentScreen.setPrepareTransition(true);</span>
+
+<span class="fc" id="L586">    System.out.println(&quot;Loading new world: &quot; + targetExit.getTargetMap());</span>
+    // if Game Over, Set Game to endScreen
+<span class="fc bfc" id="L588" title="All 2 branches covered.">    if (targetExit.getTargetMap().contains(&quot;EndScreen&quot;)) {</span>
+<span class="pc bpc" id="L589" title="1 of 2 branches missed.">      if (this.backgroundMusic != null) {</span>
+<span class="fc" id="L590">        this.backgroundMusic.stop();</span>
+      }
+
+<span class="fc" id="L593">      Gdx.app.postRunnable(</span>
+          () -&gt; {
+<span class="pc bpc" id="L595" title="1 of 2 branches missed.">            if (game.getUsername() == null) {</span>
+<span class="fc" id="L596">              game.setScreen(new UsernameScreen(game));</span>
+            } else {
+<span class="nc" id="L598">              game.setScreen(new EndScreen(game, null));</span>
+            }
+<span class="fc" id="L600">          });</span>
+<span class="fc" id="L601">      return;</span>
+    }
+    // load new screen
+<span class="fc" id="L604">    final RoomScreen newScreen =</span>
+<span class="fc" id="L605">        Utils.instantiate(</span>
+<span class="fc" id="L606">            targetExit.getTargetMap(),</span>
+            RoomScreen.class,
+            game,
+<span class="fc" id="L609">            targetExit.getTargetX(),</span>
+<span class="fc" id="L610">            targetExit.getTargetY());</span>
+    // handle music transition
+<span class="pc bpc" id="L612" title="1 of 2 branches missed.">    if (!newScreen.getWorld().getMap().getBackgroundMusicFile().equals(&quot;continue&quot;)) {</span>
+      // stop current music
+<span class="nc bnc" id="L614" title="All 2 branches missed.">      if (this.backgroundMusic != null) {</span>
+<span class="nc" id="L615">        this.backgroundMusic.stop();</span>
+      }
+    } else {
+      // continue current music
+<span class="fc" id="L619">      newScreen.getWorld().setBackgroundMusic(this.backgroundMusic);</span>
+    }
+    // Queued to prevent thread crashes, more robust than thread sleep
+<span class="fc" id="L622">    Gdx.app.postRunnable(() -&gt; game.setScreen(newScreen));</span>
+<span class="fc" id="L623">  }</span>
+
+  private void stopPlayerLeaving(ExitTile targetExit) {
+<span class="pc bpc" id="L626" title="1 of 2 branches missed.">    if (targetExit.getX() == 0) {</span>
+<span class="nc" id="L627">      parentScreen</span>
+<span class="nc" id="L628">          .getPlayer()</span>
+<span class="nc" id="L629">          .setCameraPosition(</span>
+<span class="nc" id="L630">              parentScreen.getPlayer().getX() + ((float) getMap().getTileWidth() / 2),</span>
+<span class="nc" id="L631">              parentScreen.getPlayer().getY());</span>
+<span class="pc bpc" id="L632" title="1 of 2 branches missed.">    } else if (targetExit.getX() == getMap().getMapWidth() - 1) {</span>
+<span class="nc" id="L633">      parentScreen</span>
+<span class="nc" id="L634">          .getPlayer()</span>
+<span class="nc" id="L635">          .setCameraPosition(</span>
+<span class="nc" id="L636">              parentScreen.getPlayer().getX() - ((float) getMap().getTileWidth() / 2),</span>
+<span class="nc" id="L637">              parentScreen.getPlayer().getY());</span>
+<span class="pc bpc" id="L638" title="1 of 2 branches missed.">    } else if (targetExit.getY() == 0) {</span>
+<span class="nc" id="L639">      parentScreen</span>
+<span class="nc" id="L640">          .getPlayer()</span>
+<span class="nc" id="L641">          .setCameraPosition(</span>
+<span class="nc" id="L642">              parentScreen.getPlayer().getX(),</span>
+<span class="nc" id="L643">              parentScreen.getPlayer().getY() - ((float) getMap().getTileHeight() / 2));</span>
+<span class="pc bpc" id="L644" title="1 of 2 branches missed.">    } else if (targetExit.getY() == getMap().getMapHeight() - 1) {</span>
+<span class="fc" id="L645">      parentScreen</span>
+<span class="fc" id="L646">          .getPlayer()</span>
+<span class="fc" id="L647">          .setCameraPosition(</span>
+<span class="fc" id="L648">              parentScreen.getPlayer().getX(),</span>
+<span class="fc" id="L649">              parentScreen.getPlayer().getY() + ((float) getMap().getTileHeight() / 2));</span>
+    }
+<span class="fc" id="L651">  }</span>
+
+  /**
+   * Trigger interaction with map entities within a certain radius of the given pixel coordinates.
+   *
+   * @param pixelX the x coordinate in pixels
+   * @param pixelY the y coordinate in pixels
+   * @param tileRadius the radius within which to check for interactions (in tile units)
+   * @param p the player triggering the interaction
+   * @return true if an interaction occurred, false otherwise
+   */
+  public boolean triggerInteractionByPixel(
+      float pixelX, float pixelY, double tileRadius, Player p) {
+<span class="nc" id="L664">    float[] tileCoords = this.pixelCoordsToTileIndex(pixelX, pixelY);</span>
+<span class="nc" id="L665">    return triggerInteraction(tileCoords[0], tileCoords[1], tileRadius, p);</span>
+  }
+
+  /**
+   * Trigger interaction with map entities within a certain radius of the given tile coordinates.
+   *
+   * @param tileX the x coordinate in tile units
+   * @param tileY the y coordinate in tile units
+   * @param radius the radius within which to check for interactions (in tile units)
+   * @param p the player triggering the interaction
+   * @return true if an interaction occurred, false otherwise
+   */
+  public boolean triggerInteraction(float tileX, float tileY, double radius, Player p) {
+<span class="nc" id="L678">    MapEntity[] nearbyEntities = this.getMapEntitiesInRadius(tileX, tileY, radius);</span>
+<span class="nc" id="L679">    MapEntity[] entitiesOutOfRange = Utils.complementOfSubArray(mapEntities, nearbyEntities);</span>
+    // end any interactions with entities out of range
+<span class="nc bnc" id="L681" title="All 2 branches missed.">    for (MapEntity entity : entitiesOutOfRange) {</span>
+<span class="nc" id="L682">      entity.onInteractEnd(p, this);</span>
+    }
+<span class="nc bnc" id="L684" title="All 2 branches missed.">    for (MapEntity entity : nearbyEntities) {</span>
+<span class="nc bnc" id="L685" title="All 2 branches missed.">      if (entity.onInteract(p, this, ((RoomScreen) game.getScreen()).getGameHud())) {</span>
+<span class="nc" id="L686">        return true; // interaction occurred</span>
+      }
+    }
+<span class="nc" id="L689">    return false; // no interaction occurred</span>
+  }
+
+  public float getDeltaViewportHeight() {
+<span class="nc" id="L693">    return 0;</span>
+  }
+
+  public Music getBackgroundMusic() {
+<span class="fc" id="L697">    return backgroundMusic;</span>
+  }
+
+  /**
+   * Sets the background to the game.
+   *
+   * @param music What music to play.
+   */
+  public void setBackgroundMusic(Music music) {
+<span class="fc bfc" id="L706" title="All 2 branches covered.">    if (backgroundMusic != null) {</span>
+<span class="fc" id="L707">      backgroundMusic.stop();</span>
+    }
+<span class="fc" id="L709">    backgroundMusic = music;</span>
+<span class="fc bfc" id="L710" title="All 2 branches covered.">    if (backgroundMusic != null) {</span>
+<span class="fc" id="L711">      backgroundMusic.setLooping(true);</span>
+<span class="fc" id="L712">      backgroundMusic.setVolume(0.5f);</span>
+<span class="fc" id="L713">      backgroundMusic.play();</span>
+    }
+<span class="fc" id="L715">  }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.13.202504020838</span></div></body></html>

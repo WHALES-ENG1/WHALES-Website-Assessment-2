@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>Bookstack1.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">headless</a> &gt; <a href="index.source.html" class="el_package">com.mathochist.mazegame.worlds.object</a> &gt; <span class="el_source">Bookstack1.java</span></div><h1>Bookstack1.java</h1><pre class="source lang-java linenums">package com.mathochist.mazegame.worlds.object;
+
+import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.graphics.g2d.TextureAtlas;
+import com.mathochist.mazegame.Main;
+import com.mathochist.mazegame.entity.MapEntity;
+import com.mathochist.mazegame.entity.Player;
+import com.mathochist.mazegame.userinterface.Hud;
+import com.mathochist.mazegame.worlds.GameWorld;
+
+/**
+ * Creates a Bookstack object that aims to set the scene for the library and also functions as * a
+ * non-collidable object that the player must navigate around.
+ */
+public class Bookstack1 extends MapEntity {
+
+  /**
+   * Creates the Bookstack object using Entity.
+   *
+   * @param game The instance of the game.
+   * @param batch The current SpritBatch.
+   * @param atlas Which Atlas object is in.
+   * @param tileX X Coord to place at.
+   * @param tileY Y Coord to place at.
+   * @param width Width of object.
+   * @param height Height of object.
+   * @param collidable Is object collidable.
+   */
+  public Bookstack1(
+      Main game,
+      SpriteBatch batch,
+      TextureAtlas atlas,
+      Integer tileX,
+      Integer tileY,
+      Integer width,
+      Integer height,
+      Boolean collidable) {
+<span class="nc" id="L38">    super(game, batch, atlas, &quot;book_stack1&quot;, tileX, tileY, width, height, collidable);</span>
+<span class="nc" id="L39">  }</span>
+
+  @Override
+  public boolean onInteract(Player p, GameWorld world, Hud worldHud) {
+<span class="nc" id="L43">    return false; // Bookstacks are not interactable</span>
+  }
+
+  @Override
+<span class="nc" id="L47">  public void onInteractEnd(Player p, GameWorld world) {} // No action needed on interaction end</span>
+
+  @Override
+  public boolean onCollision(GameWorld world) {
+<span class="nc" id="L51">    return false; // no collision behavior</span>
+  }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.13.202504020838</span></div></body></html>

@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>RedButton.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">headless</a> &gt; <a href="index.source.html" class="el_package">com.mathochist.mazegame.worlds.object</a> &gt; <span class="el_source">RedButton.java</span></div><h1>RedButton.java</h1><pre class="source lang-java linenums">package com.mathochist.mazegame.worlds.object;
+
+import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.graphics.g2d.TextureAtlas;
+import com.mathochist.mazegame.Main;
+import com.mathochist.mazegame.entity.MapEntity;
+import com.mathochist.mazegame.entity.Player;
+import com.mathochist.mazegame.screen.roomscreen.RoomScreen;
+import com.mathochist.mazegame.userinterface.Hud;
+import com.mathochist.mazegame.userinterface.speechtext.SpeechType;
+import com.mathochist.mazegame.worlds.GameWorld;
+
+/**
+ * An Easter egg red button that when interacted with causes a power outage.
+ */
+public class RedButton extends MapEntity {
+<span class="fc" id="L17">  boolean interacted = false;</span>
+
+  /**
+   * Creates Red Button object.
+   *
+   * @param game this instance of game
+   * @param batch the spriteBatch
+   * @param atlas the atlas containing the button
+   * @param tileX the X coord to place at
+   * @param tileY the Y coord to place at
+   * @param width the width of the button
+   * @param height the height of the button
+   * @param collidable is the button collidable
+   */
+  public RedButton(
+      Main game,
+      SpriteBatch batch,
+      TextureAtlas atlas,
+      Integer tileX,
+      Integer tileY,
+      Integer width,
+      Integer height,
+      Boolean collidable) {
+
+<span class="fc" id="L41">    super(game, batch, atlas, &quot;red_button&quot;, tileX, tileY, width, height, collidable);</span>
+
+<span class="fc" id="L43">    boolean interacted = false;</span>
+<span class="fc" id="L44">  }</span>
+
+  @Override
+  public boolean onInteract(Player p, GameWorld world, Hud worldHud) {
+<span class="pc bpc" id="L48" title="1 of 2 branches missed.">    if (!interacted) {</span>
+<span class="fc" id="L49">      RoomScreen.powerOutage = true;</span>
+<span class="fc" id="L50">      RoomScreen screen = (RoomScreen) game.getScreen();</span>
+<span class="fc" id="L51">      screen.getGameHud().getSpeechBubbleManager().clear();</span>
+<span class="fc" id="L52">      game.getEventsCounter().powerCutEvent();</span>
+<span class="fc" id="L53">      screen</span>
+<span class="fc" id="L54">          .getGameHud()</span>
+<span class="fc" id="L55">          .getSpeechBubbleManager()</span>
+<span class="fc" id="L56">          .createSpeechBubble(SpeechType.NPC_SPEECH, &quot;Power went out!&quot;, 5000);</span>
+    }
+<span class="fc" id="L58">    this.interacted = true;</span>
+<span class="fc" id="L59">    return false;</span>
+  }
+
+  @Override
+<span class="nc" id="L63">  public void onInteractEnd(Player p, GameWorld world) {}</span>
+
+  @Override
+  public boolean onCollision(GameWorld world) {
+<span class="nc" id="L67">    return false;</span>
+  }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.13.202504020838</span></div></body></html>

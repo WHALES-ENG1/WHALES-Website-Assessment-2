@@ -1,0 +1,118 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>KeyBuffer.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">headless</a> &gt; <a href="index.source.html" class="el_package">com.mathochist.mazegame.keymovement</a> &gt; <span class="el_source">KeyBuffer.java</span></div><h1>KeyBuffer.java</h1><pre class="source lang-java linenums">package com.mathochist.mazegame.keymovement;
+
+import java.util.ArrayList;
+
+/** A buffer to store key presses and camera movement. */
+public class KeyBuffer {
+
+<span class="fc" id="L8">  private final float[] cameraMove = {0, 0};</span>
+<span class="fc" id="L9">  private final ArrayList&lt;Integer&gt; keysPressed = new ArrayList&lt;&gt;();</span>
+
+  /** Create Key buffer. */
+<span class="fc" id="L12">  public KeyBuffer() {}</span>
+
+  private void normalize() {
+<span class="pc bpc" id="L15" title="2 of 4 branches missed.">    if (cameraMove[0] != 0 || cameraMove[1] != 0) {</span>
+<span class="nc" id="L16">      float length =</span>
+<span class="nc" id="L17">          (float) Math.sqrt(cameraMove[0] * cameraMove[0] + cameraMove[1] * cameraMove[1]);</span>
+<span class="nc" id="L18">      cameraMove[0] /= length;</span>
+<span class="nc" id="L19">      cameraMove[1] /= length;</span>
+    }
+<span class="fc" id="L21">  }</span>
+
+  /**
+   * Return Camera move and normalize.
+   *
+   * @return cameraMove
+   */
+  public float[] getCameraMove() {
+<span class="fc" id="L29">    normalize();</span>
+<span class="fc" id="L30">    return cameraMove;</span>
+  }
+
+  public void setCameraX(float x) {
+<span class="nc" id="L34">    cameraMove[0] = x;</span>
+<span class="nc" id="L35">  }</span>
+
+  public void setCameraY(float y) {
+<span class="nc" id="L38">    cameraMove[1] = y;</span>
+<span class="nc" id="L39">  }</span>
+
+  /**
+   * Move Camera by X.
+   *
+   * @param x to move by
+   */
+  public void addCameraX(float x) {
+<span class="nc" id="L47">    cameraMove[0] += x;</span>
+<span class="nc" id="L48">  }</span>
+
+  /**
+   * Move Camera by Y.
+   *
+   * @param y to move by
+   */
+  public void addCameraY(float y) {
+<span class="nc" id="L56">    cameraMove[1] += y;</span>
+<span class="nc" id="L57">  }</span>
+
+  /** set camera x and y to 0. */
+  public void clear() {
+<span class="fc" id="L61">    cameraMove[0] = 0;</span>
+<span class="fc" id="L62">    cameraMove[1] = 0;</span>
+<span class="fc" id="L63">  }</span>
+
+  public ArrayList&lt;Integer&gt; getKeysPressed() {
+<span class="nc" id="L66">    return keysPressed;</span>
+  }
+
+  /**
+   * add Pressed key to keysPressed.
+   *
+   * @param keycode keycode of pressed key
+   */
+  public void addKeyPressed(int keycode) {
+<span class="pc bpc" id="L75" title="1 of 2 branches missed.">    if (!keysPressed.contains(keycode)) {</span>
+<span class="fc" id="L76">      keysPressed.add(keycode);</span>
+    }
+<span class="fc" id="L78">  }</span>
+
+  /**
+   * remove Pressed Key.
+   *
+   * @param keycode keycode to remove
+   */
+  public void removeKeyPressed(int keycode) {
+<span class="nc" id="L86">    keysPressed.remove((Integer) keycode);</span>
+<span class="nc" id="L87">  }</span>
+
+  /** Move Camera dependent on Key. */
+  public void updateCameraMovementFromKeys() {
+<span class="fc" id="L91">    clear();</span>
+<span class="fc bfc" id="L92" title="All 2 branches covered.">    for (int keycode : keysPressed) {</span>
+<span class="pc bpc" id="L93" title="2 of 4 branches missed.">      if (keycode == KeyBinds.MOVE_UP || keycode == KeyBinds.MOVE_UP_ALT) {</span>
+<span class="nc" id="L94">        addCameraY(1);</span>
+      }
+<span class="pc bpc" id="L96" title="2 of 4 branches missed.">      if (keycode == KeyBinds.MOVE_DOWN || keycode == KeyBinds.MOVE_DOWN_ALT) {</span>
+<span class="nc" id="L97">        addCameraY(-1);</span>
+      }
+<span class="pc bpc" id="L99" title="2 of 4 branches missed.">      if (keycode == KeyBinds.MOVE_LEFT || keycode == KeyBinds.MOVE_LEFT_ALT) {</span>
+<span class="nc" id="L100">        addCameraX(-1);</span>
+      }
+<span class="pc bpc" id="L102" title="2 of 4 branches missed.">      if (keycode == KeyBinds.MOVE_RIGHT || keycode == KeyBinds.MOVE_RIGHT_ALT) {</span>
+<span class="nc" id="L103">        addCameraX(1);</span>
+      }
+<span class="fc" id="L105">    }</span>
+<span class="fc" id="L106">  }</span>
+
+  /**
+   * Has the key just been pressed.
+   *
+   * @param keycode keycode to check
+   * @return bool
+   */
+  public boolean isKeyPressed(int keycode) {
+<span class="fc" id="L115">    return keysPressed.contains(keycode);</span>
+  }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.13.202504020838</span></div></body></html>

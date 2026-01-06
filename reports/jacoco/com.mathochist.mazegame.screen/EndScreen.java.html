@@ -1,0 +1,255 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>EndScreen.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">headless</a> &gt; <a href="index.source.html" class="el_package">com.mathochist.mazegame.screen</a> &gt; <span class="el_source">EndScreen.java</span></div><h1>EndScreen.java</h1><pre class="source lang-java linenums">package com.mathochist.mazegame.screen;
+
+import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.Input;
+import com.badlogic.gdx.audio.Music;
+import com.badlogic.gdx.files.FileHandle;
+import com.badlogic.gdx.graphics.Color;
+import com.badlogic.gdx.graphics.GL32;
+import com.badlogic.gdx.scenes.scene2d.Actor;
+import com.badlogic.gdx.scenes.scene2d.Stage;
+import com.badlogic.gdx.scenes.scene2d.ui.Button;
+import com.badlogic.gdx.scenes.scene2d.ui.Label;
+import com.badlogic.gdx.scenes.scene2d.ui.Table;
+import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
+import com.badlogic.gdx.utils.StringBuilder;
+import com.badlogic.gdx.utils.viewport.FitViewport;
+import com.badlogic.gdx.utils.viewport.Viewport;
+import com.mathochist.mazegame.Main;
+import com.mathochist.mazegame.userinterface.ButtonHoverListener;
+import com.mathochist.mazegame.userinterface.MainMenuUiSkin;
+import java.util.ArrayList;
+
+/**
+ * The EndScreen class represents the End screen of the game which is used to show the player their
+ * result in playing the game. It extends DefaultScreen and implements the necessary methods to
+ * display a stage with UI elements.
+ */
+public class EndScreen extends DefaultScreen {
+
+<span class="fc" id="L30">  public final int score = game.getScoreCounter().calculateScore();</span>
+<span class="fc" id="L31">  public final int bonusScore = game.getScoreCounter().updateBonusScore();</span>
+  private final Stage stage;
+  private final boolean gameLost;
+  private final String username;
+<span class="fc" id="L35">  private String csvFile = &quot;leaderboard.csv&quot;;</span>
+  private MainMenuUiSkin uiSkin;
+  private Music backgroundMusic;
+
+  /**
+   * Creates the EndScreen and checks the remaining time and seconds left.
+   *
+   * @param game current instance of game.
+   * @param backgroundMusic The currently playing background music.
+   */
+  public EndScreen(Main game, Music backgroundMusic) {
+<span class="fc" id="L46">    super(game);</span>
+<span class="fc" id="L47">    gameLost = (game.getTimerManager().isTimeUp());</span>
+<span class="fc" id="L48">    username = game.getUsername();</span>
+<span class="fc bfc" id="L49" title="All 2 branches covered.">    if (username == null) {</span>
+<span class="fc" id="L50">      throw new MissingUsernameException(</span>
+          &quot;EndScreen cannot be loaded when game.username is not yet set&quot;);
+    }
+<span class="fc" id="L53">    game.getPlayerInventory().clear();</span>
+<span class="fc" id="L54">    Viewport viewport = new FitViewport(1280, 720);</span>
+<span class="fc" id="L55">    stage = new Stage(viewport, game.getSpriteBatch());</span>
+<span class="fc" id="L56">    this.backgroundMusic = backgroundMusic;</span>
+<span class="fc" id="L57">  }</span>
+
+  /**
+   * Creates the EndScreen and checks the remaining time and seconds left. Also sets the CSV_FILE
+   * for the leaderboard to a custom path.
+   *
+   * @param game current instance of game.
+   * @param backgroundMusic The currently playing background music.
+   * @param csvFile Path to the leaderboard CSV file.
+   */
+  public EndScreen(Main game, Music backgroundMusic, String csvFile) {
+<span class="fc" id="L68">    this(game, backgroundMusic);</span>
+<span class="fc" id="L69">    this.csvFile = csvFile;</span>
+<span class="fc" id="L70">  }</span>
+
+  @Override
+  public void show() {
+<span class="pc bpc" id="L74" title="1 of 2 branches missed.">    if (backgroundMusic == null) {</span>
+<span class="fc" id="L75">      backgroundMusic = Gdx.audio.newMusic(Gdx.files.internal(&quot;audio/title_screen.mp3&quot;));</span>
+<span class="fc" id="L76">      backgroundMusic.setLooping(true);</span>
+<span class="fc" id="L77">      backgroundMusic.setVolume(0.5f);</span>
+<span class="fc" id="L78">      backgroundMusic.play();</span>
+    }
+<span class="fc" id="L80">    Gdx.input.setInputProcessor(stage);</span>
+
+<span class="fc" id="L82">    uiSkin = new MainMenuUiSkin();</span>
+<span class="fc" id="L83">    Table table = new Table();</span>
+<span class="fc" id="L84">    table.setFillParent(true);</span>
+<span class="fc" id="L85">    stage.addActor(table);</span>
+
+    // Game over label
+    Label gameOverLabel;
+<span class="pc bpc" id="L89" title="1 of 2 branches missed.">    if (gameLost) {</span>
+<span class="nc" id="L90">      gameOverLabel = new Label(&quot;Game Over&quot;, uiSkin.getSkin());</span>
+<span class="nc" id="L91">      table.add(gameOverLabel).padBottom(10).colspan(3);</span>
+<span class="nc" id="L92">      table.row();</span>
+<span class="nc" id="L93">      Label timeUpLabel = new Label(&quot;Time's Up! &quot;, uiSkin.getSkin(), &quot;presents_grey&quot;);</span>
+<span class="nc" id="L94">      table.add(timeUpLabel).padBottom(30).colspan(3);</span>
+<span class="nc" id="L95">    } else {</span>
+<span class="fc" id="L96">      gameOverLabel = new Label(&quot;You Won!&quot;, uiSkin.getSkin());</span>
+<span class="fc" id="L97">      table.add(gameOverLabel).padBottom(10).colspan(3);</span>
+<span class="fc" id="L98">      table.row();</span>
+<span class="fc" id="L99">      Label scoreLabel =</span>
+<span class="fc" id="L100">          new Label(&quot;Final score: &quot; + (score + bonusScore), uiSkin.getSkin(), &quot;game_font&quot;);</span>
+<span class="fc" id="L101">      scoreLabel.setFontScale(1.2f);</span>
+<span class="fc" id="L102">      table.add(scoreLabel).padBottom(30).colspan(3);</span>
+    }
+
+    // Leaderboard
+<span class="fc" id="L106">    table.row();</span>
+<span class="fc" id="L107">    table.add(new Label(&quot;RANK&quot;, uiSkin.getSkin(), &quot;game_font&quot;)).padRight(20);</span>
+<span class="fc" id="L108">    table.add(new Label(&quot;NAME&quot;, uiSkin.getSkin(), &quot;game_font&quot;)).padRight(50);</span>
+<span class="fc" id="L109">    table.add(new Label(&quot;SCORE&quot;, uiSkin.getSkin(), &quot;game_font&quot;)).row();</span>
+<span class="fc" id="L110">    table</span>
+<span class="fc" id="L111">        .add(new Label(&quot;- - - - - - - - - - - - - - - - - -&quot;, uiSkin.getSkin(), &quot;game_font&quot;))</span>
+<span class="fc" id="L112">        .colspan(3)</span>
+<span class="fc" id="L113">        .padBottom(10)</span>
+<span class="fc" id="L114">        .row();</span>
+
+<span class="fc" id="L116">    int rank = 1;</span>
+<span class="fc" id="L117">    ArrayList&lt;String[]&gt; leaderBoard =</span>
+<span class="pc bpc" id="L118" title="1 of 2 branches missed.">        updateLeaderboard(gameLost ? null : username, score + bonusScore);</span>
+<span class="fc bfc" id="L119" title="All 2 branches covered.">    for (String[] row : leaderBoard) {</span>
+<span class="fc" id="L120">      String name = row[0];</span>
+<span class="fc" id="L121">      String scoreStr = row[1];</span>
+<span class="fc" id="L122">      Label rankLabel = new Label(rank + &quot;.&quot;, uiSkin.getSkin(), &quot;game_font&quot;);</span>
+<span class="fc" id="L123">      Label nameLabel = new Label(name, uiSkin.getSkin(), &quot;game_font&quot;);</span>
+<span class="fc" id="L124">      Label scoreLabel = new Label(scoreStr, uiSkin.getSkin(), &quot;game_font&quot;);</span>
+<span class="pc bpc" id="L125" title="1 of 2 branches missed.">      boolean isPlayer =</span>
+<span class="pc bpc" id="L126" title="1 of 4 branches missed.">          !gameLost &amp;&amp; name.equals(username) &amp;&amp; scoreStr.equals(String.valueOf(score + bonusScore));</span>
+<span class="fc bfc" id="L127" title="All 2 branches covered.">      if (isPlayer) {</span>
+<span class="fc" id="L128">        rankLabel.setColor(Color.GOLD);</span>
+<span class="fc" id="L129">        nameLabel.setColor(Color.GOLD);</span>
+<span class="fc" id="L130">        scoreLabel.setColor(Color.GOLD);</span>
+      }
+<span class="fc" id="L132">      table.add(rankLabel).padRight(20);</span>
+<span class="fc" id="L133">      table.add(nameLabel).padRight(50);</span>
+<span class="fc" id="L134">      table.add(scoreLabel).row();</span>
+<span class="fc" id="L135">      rank++;</span>
+<span class="fc" id="L136">    }</span>
+<span class="fc" id="L137">    Button backToMenuButton = new Button(uiSkin.getSkin(), &quot;back_to_MM&quot;);</span>
+<span class="fc" id="L138">    backToMenuButton.addListener(</span>
+<span class="fc" id="L139">        new ChangeListener() {</span>
+          @Override
+          public void changed(ChangeListener.ChangeEvent changeEvent, Actor actor) {
+<span class="nc" id="L142">            backgroundMusic.stop();</span>
+<span class="nc" id="L143">            game.setScreen(new TitleScreen(game));</span>
+<span class="nc" id="L144">          }</span>
+        });
+<span class="fc" id="L146">    backToMenuButton.row();</span>
+
+<span class="fc" id="L148">    backToMenuButton.addListener(new ButtonHoverListener());</span>
+<span class="fc" id="L149">    table.add(backToMenuButton).width(250).height(50).padTop(30).colspan(3);</span>
+<span class="fc" id="L150">  }</span>
+
+  /**
+   * Update the leaderboard file with the given username and score. Will not change if the score
+   * isn't high enough to reach the leaderboard.
+   *
+   * @param playerName The username of the player to use for the score.
+   * @param totalScore The score achieved by the player.
+   * @return The new leaderboard as an array list containing 10 elements, each one is a 2-array
+   *     &lt;code&gt;[username, score]&lt;/code&gt;
+   */
+  public ArrayList&lt;String[]&gt; updateLeaderboard(String playerName, int totalScore) {
+<span class="fc" id="L162">    FileHandle file = Gdx.files.local(csvFile);</span>
+<span class="fc" id="L163">    ArrayList&lt;String[]&gt; scores = new ArrayList&lt;&gt;();</span>
+<span class="pc bpc" id="L164" title="1 of 2 branches missed.">    if (file.exists()) {</span>
+<span class="fc" id="L165">      String[] lines = file.readString().split(&quot;\\r?\\n&quot;);</span>
+<span class="fc bfc" id="L166" title="All 2 branches covered.">      for (String line : lines) {</span>
+<span class="fc" id="L167">        String[] parts = line.split(&quot;,&quot;);</span>
+<span class="pc bpc" id="L168" title="1 of 2 branches missed.">        if (parts.length == 2) {</span>
+<span class="fc" id="L169">          scores.add(parts);</span>
+        }
+      }
+    }
+<span class="pc bpc" id="L173" title="1 of 4 branches missed.">    if (playerName != null &amp;&amp; !playerName.isEmpty()) {</span>
+<span class="fc" id="L174">      scores.add(new String[] {playerName, String.valueOf(totalScore)});</span>
+    }
+<span class="fc" id="L176">    scores.sort(</span>
+        (o1, o2) -&gt; {
+<span class="fc" id="L178">          int s1 = 0;</span>
+<span class="fc" id="L179">          int s2 = 0;</span>
+          try {
+<span class="fc" id="L181">            s1 = Integer.parseInt(o1[1]);</span>
+<span class="nc" id="L182">          } catch (NumberFormatException e) {</span>
+<span class="nc" id="L183">            System.err.println(e.getMessage());</span>
+<span class="fc" id="L184">          }</span>
+          try {
+<span class="fc" id="L186">            s2 = Integer.parseInt(o2[1]);</span>
+<span class="nc" id="L187">          } catch (NumberFormatException e) {</span>
+<span class="nc" id="L188">            System.err.println(e.getMessage());</span>
+<span class="fc" id="L189">          }</span>
+<span class="fc" id="L190">          return Integer.compare(s2, s1);</span>
+        });
+
+<span class="fc" id="L193">    StringBuilder sb = new StringBuilder();</span>
+<span class="fc" id="L194">    ArrayList&lt;String[]&gt; top10 = new ArrayList&lt;&gt;();</span>
+<span class="fc" id="L195">    int count = 0;</span>
+<span class="fc bfc" id="L196" title="All 2 branches covered.">    for (String[] row : scores) {</span>
+<span class="fc bfc" id="L197" title="All 2 branches covered.">      if (count &gt;= 10) {</span>
+<span class="fc" id="L198">        break;</span>
+      }
+<span class="fc" id="L200">      top10.add(row);</span>
+<span class="fc" id="L201">      sb.append(row[0]).append(&quot;,&quot;).append(row[1]).append(&quot;\n&quot;);</span>
+<span class="fc" id="L202">      count++;</span>
+<span class="fc" id="L203">    }</span>
+<span class="fc bfc" id="L204" title="All 2 branches covered.">    if (playerName != null) {</span>
+<span class="fc" id="L205">      file.writeString(sb.toString(), false);</span>
+    }
+
+<span class="fc" id="L208">    return top10;</span>
+  }
+
+  @Override
+  public void render(float delta) {
+<span class="nc" id="L213">    Gdx.gl.glClearColor(0, 0, 0, 1);</span>
+<span class="nc" id="L214">    Gdx.gl.glClear(GL32.GL_COLOR_BUFFER_BIT);</span>
+    // AchievementScreen is accessible from EndScreen
+<span class="nc bnc" id="L216" title="All 2 branches missed.">    if (Gdx.input.isKeyJustPressed(Input.Keys.TAB)) {</span>
+<span class="nc" id="L217">      game.setScreen(new AchievementScreen(game, this));</span>
+<span class="nc" id="L218">      return;</span>
+    }
+<span class="nc" id="L220">    stage.act(delta);</span>
+<span class="nc" id="L221">    stage.draw();</span>
+<span class="nc" id="L222">  }</span>
+
+  @Override
+<span class="nc" id="L225">  public void renderShapes() {}</span>
+
+  @Override
+  public void resize(int width, int height) {
+<span class="fc" id="L229">    stage.getViewport().update(width, height, true);</span>
+<span class="fc" id="L230">  }</span>
+
+  @Override
+  public void dispose() {
+<span class="nc bnc" id="L234" title="All 2 branches missed.">    if (stage != null) {</span>
+<span class="nc" id="L235">      stage.dispose();</span>
+    }
+<span class="nc bnc" id="L237" title="All 2 branches missed.">    if (uiSkin != null) {</span>
+<span class="nc" id="L238">      uiSkin.dispose();</span>
+    }
+<span class="nc bnc" id="L240" title="All 2 branches missed.">    if (backgroundMusic != null) {</span>
+<span class="nc" id="L241">      backgroundMusic.dispose();</span>
+    }
+<span class="nc" id="L243">  }</span>
+
+  @Override
+  public boolean keyDown(int keycode) {
+<span class="nc" id="L247">    return false;</span>
+  }
+
+  @Override
+  public boolean keyUp(int keycode) {
+<span class="nc" id="L252">    return false;</span>
+  }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.13.202504020838</span></div></body></html>
